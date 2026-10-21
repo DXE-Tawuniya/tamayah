@@ -107,6 +107,28 @@ How these rules are applied:
     wording.
 13. **Brand motion principles.** The Figma file has no motion specification, so the motion follows the brief.
 
+14. **Singular leadership role.** Each person now has their own card, so the approved plural row label "Board Members"
+    is shown as "Board Member" / "عضو مجلس المديرين".
+15. **Error colour.** The Tamayah palette has no error or alert colour. Errors therefore use Dark Blue with an icon and
+    explicit text, so colour is never the only signal.
+
 ## After the redesign
 
-See the summary in the commit message and the results table in `README.md`.
+Full results are in `README.md` → "Validation results".
+
+| Issue | Resolution |
+|---|---|
+| Visible background grid | Removed everywhere |
+| Hand-drawn connector, hourglass and vision shapes | Replaced by the official paths `26:2520` and `26:2398`, used in only two places |
+| Regulatory statement ×3 | Now appears only in the hero trust strip and the footer |
+| "More than processing transactions" ×2 | Now appears once, in the audience intro |
+| Long About and Why paragraphs | Replaced by a lead statement plus 4 pillars, and a lead statement plus 5 values |
+| Static audience cards | Replaced by an accessible tabbed audience explorer with deep links and a preselecting CTA |
+| Autoplay journey | Replaced by a user-driven journey explorer with a completion state. Nothing moves automatically. |
+| Repeated care benefits | Shared benefits shown once, with differences per service |
+| No enquiry path | Validated `mailto` enquiry form with live regions; honest copy about what submission does |
+| Drawer without a focus trap | Focus trap, `inert` page, and Esc that returns focus |
+| Relative `hreflang` | Absolute URLs plus `x-default` and canonical (SEO 91 → 100) |
+| Stock-photo LCP | Abstract claim-status visual; mobile Performance 82 → 92–93 |
+| 26 px reveal movement | 16 px, 600 ms, 70 ms stagger |
+| Mobile page height | Page height (EN): 11,634 → 9,705 px on desktop and 16,550 → 14,086 px on mobile |

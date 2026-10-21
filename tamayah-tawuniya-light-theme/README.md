@@ -1,10 +1,12 @@
 # Tamayah — Tawuniya-aligned light option ("Lifeline")
 
-A new light design direction that sits next to the existing options. It does not change them.
+This is a light design direction that sits next to the existing options and does not change them. Before the redesign
+I wrote an audit, which is in [`AUDIT.md`](AUDIT.md). It covers the baseline, the verified Tawuniya rules and the open
+questions.
 
 - Light option 3: `../tamayah-light-theme/option-3.html`
 - Dark option: `../tamayah-dark-theme/`
-- **This option:** `./` (redirects to `en/` or `ar/`)
+- **This option:** `./` (redirects to `en/` or `ar/` and keeps any `#hash`)
 
 The site is static and needs no build tools to view.
 
@@ -13,37 +15,96 @@ The site is static and needs no build tools to view.
 
 ## Where things live
 
-- `build.py` holds the layout and components. **Copy is not duplicated here.** The generator imports `CONTENT`,
-  `NAV_ITEMS` and the contact facts from `../tamayah-dark-theme/build.py`, because stakeholders preferred the dark
-  option's content, sections and information architecture. If you edit copy there, run `python3 build.py` here too.
-  The only extra strings are a few UI labels (the claim-journey heading and the pause/play button), kept in `UI`.
-- `assets/style.css` is the design system. It uses logical properties only, so Arabic RTL works without extra rules.
-- `assets/site.js` is progressive enhancement. The page is fully usable without it.
-- Fonts: the Tawuniya typeface (400/500/700), converted to WOFF2 from `../tamayah-light-theme/assets/fonts/`.
-- Images: `consult-desk.jpg` and `care-understood.jpg`, resized from `../tamayah-light-theme/assets/img/`.
-- Logo: `Tamayah_Logo_POS.png` (2400×784). It is always rendered with its intrinsic width and height and `height:auto`,
-  so its proportions never distort.
+- `build.py` holds the layout and components. Approved copy is **imported** from `../tamayah-dark-theme/build.py`, so
+  the two options never drift apart. The `UI` dictionary holds the only new strings: interface labels plus
+  condensations of approved copy. All of them are listed for sign-off in `AUDIT.md` §3.
+- `assets/style.css` is the design system, in three layers:
+  1. Tawuniya foundation, verified in Figma (`--tw-*`)
+  2. Tamayah palette (`--tm-*`)
+  3. Derived web tokens, which the guidelines don't specify
 
-## Design system in brief
+  It uses logical properties only, so Arabic RTL works without extra rules.
+- `assets/site.js` is vanilla progressive enhancement (about 10 KB, no libraries). Without it every panel is visible and
+  the form posts via `mailto:`.
+- Fonts: the Tawuniya typeface (400/500/700, WOFF2). Only the 400 weight is preloaded.
+- Logo: `logo-320/640.{webp,png}` are resized renditions of `Tamayah_Logo_POS.png`. They are never recoloured, and the
+  aspect ratio is preserved.
 
-**Foundation (Tawuniya brand guidelines, Figma "System Assets").** The Lifeline system: stadium and pill shapes joined
-by a thin neck with soft fillets ("Complete" and "Crop" behaviours), a visible 6-column lifeline grid on a warm paper
-background, large numerals inside rounded crops ("Box"), the Tawuniya typeface, and pill buttons.
+## The connected shape (official geometry only)
 
-**Identity (Tamayah palette and logo).**
+The site uses Tawuniya's connected-shape motif in exactly two places. Both use the **official vector paths** read from
+the brand file, scaled uniformly:
 
-| Token | Hex | Use |
+| Use | Source | Where |
 |---|---|---|
-| `--ink` | `#132028` | Text, secondary CTA on mint, active nav |
-| `--teal` | `#326B73` | Primary CTA, tags, the vision band, completed claim steps |
-| `--mint` | `#80EABA` | Highlight moments: the hero word pill, the active claim step, the partner panel |
-| `--green` / `--gray` | `#7EAC8A` / `#809197` | Reserved for decoration (not used for text, since contrast is too low) |
-| `--paper` | `#F7F6F2` | Page background |
+| Hero claim-status visual | Crop behaviour, vector `26:2520` (three lobes) | `CROP_PATH` in `build.py` |
+| "Claim closed" completion badge | Detail behaviour, vector `26:2398` (two lobes) | `DETAIL_PATH` in `build.py` |
 
-Tints such as `--teal-tint`, `--mint-tint` and `--teal-deep` are derived from these colours.
+Elsewhere the site uses separate rounded forms. There are no background grids, construction lines or hand-drawn
+connectors anywhere. In RTL the shapes are mirrored with `scaleX(-1)`, which is a transform, not a redraw.
 
-**Accessibility.** Every text pair meets WCAG AA (axe-core reports no violations in EN or AR). There is a visible 3px
-focus ring, a skip link, a mobile drawer that is `inert` when closed and closes with Esc, and a pause control for the
-auto-advancing claim journey (WCAG 2.2.2). `prefers-reduced-motion` turns all motion off.
+## Interactive components
 
-To confirm before launch (inherited from the dark option): `LINKEDIN_URL` and the email address `info@tamayah.com`.
+| Component | Pattern | Keyboard | Deep link |
+|---|---|---|---|
+| Audience explorer | ARIA tabs | ←/→ (mirrored in RTL), ↑/↓, Home, End | `#audience-insurers` … `#audience-beneficiaries` |
+| Claims journey explorer | ARIA tabs + Previous/Next; progress rail | Same as above | `#stage-1` … `#stage-5` |
+| Care-service comparison | Side by side on desktop; segmented tabs below 900 px | Same as above | `#suite` |
+| Mobile menu | Disclosure with focus trap; the page behind it is `inert` | Esc closes and returns focus to the button | — |
+| Enquiry form | Inline validation, error summary (`role=alert`), success message (`role=status`) | Native | `#partner` |
+
+**Enquiry form:** there is no approved backend, so submitting opens the visitor's email app with a pre-filled message to
+`info@tamayah.com`. The page says this before submission. No data leaves the browser until the visitor presses Send in
+their mail client. To use a real endpoint, change the form's `action` and replace the `mailto` branch in `site.js`.
+
+## Validation results (2026-10-21)
+
+| Check | Result |
+|---|---|
+| axe-core 4.10.2 (WCAG 2.0/2.1/2.2 A+AA + best practices), EN and AR at 1440 / 834 / 390 px | **0 violations** on all 6 |
+| Behaviour suite (Playwright): keyboard, RTL arrows, deep links, focus trap, form, no-JS, reduced motion, target size ≥24 px, heading order, sticky CTA, language switch | **61 / 61 pass** |
+| Horizontal overflow, EN and AR at 390 / 834 / 1440 | None |
+| html-validate 9.4.1 (recommended; inline-style rule off for the `--d` stagger variables) | 0 problems |
+| ESLint 10.1.0 | Clean |
+| Contrast of all token pairs used for text (§ below) | ≥ 4.86:1 |
+
+Lighthouse 12.8.2, run on a local http-server with headless Chromium:
+
+| | Performance | Accessibility | Best Practices | SEO | LCP | CLS |
+|---|---|---|---|---|---|---|
+| Before, mobile EN | 82 | 100 | 100 | 91 | 4.2 s | 0 |
+| After, mobile EN | 92–93 | 100 | 100 | 100 | 2.9–3.0 s | 0 |
+| After, mobile AR | 92–93 | 100 | 100 | 100 | 2.9–3.0 s | 0 |
+| After, desktop EN / AR | 100 | 100 | 100 | 100 | 0.6 s | ≤ 0.007 |
+
+**Text contrast:**
+
+| Text on background | Ratio |
+|---|---|
+| Dark Blue on Warm White | 15.35 |
+| Teal on Warm White | 5.57 |
+| Teal on teal-10 tint | 4.86 |
+| White on Teal | 6.02 |
+| Dark Blue on Neon | 11.38 |
+| Warm White on Dark Blue | 15.35 |
+
+**Non-text contrast:**
+
+| Element | Ratio |
+|---|---|
+| Field border (Smart Gray on white) | 3.27 |
+| Segmented-control border | 3.03 |
+| Focus ring | ≥ 15.35 |
+
+Smart Gray, Nature Green and Neon fail as text colours on light backgrounds, so they are never used for text.
+
+## Still to confirm
+
+See `AUDIT.md` §3 for the full list. The short version:
+- Tawuniya Light/ExtraLight font files
+- The Tamayah palette PDF and logo clear-space rules
+- The official LinkedIn URL
+- Privacy, Terms and Accessibility URLs
+- The form backend and its privacy/consent copy
+- Leadership portraits
+- Sign-off on the condensed copy

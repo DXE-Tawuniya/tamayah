@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Tamayah — Tawuniya-aligned light option ("Lifeline") generator.
 
-Copy, information architecture and contact facts are imported from the dark
-option's generator (../tamayah-dark-theme/build.py), so both options always
-speak with the same words. Only layout, components and a handful of UI labels
-live here.
+Approved copy, information architecture and contact facts are imported from the
+dark option's generator (../tamayah-dark-theme/build.py). This file owns the
+layout, the components and a small set of UI strings (UI below). Every new
+string in UI is either interface wording or a condensation of approved copy,
+and is listed for sign-off in AUDIT.md.
 
 Run:  python3 build.py        -> writes en/index.html, ar/index.html, index.html
 """
-import os, sys, html, importlib.util
+import os, re, sys, html, importlib.util
 
 sys.dont_write_bytecode = True  # never leave a __pycache__ inside the dark option's folder
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DARK_BUILD = os.path.join(ROOT, "..", "tamayah-dark-theme", "build.py")
+SITE_URL = "https://dxe-tawuniya.github.io/tamayah/tamayah-tawuniya-light-theme/"
 
 _spec = importlib.util.spec_from_file_location("tamayah_dark_build", DARK_BUILD)
 dark = importlib.util.module_from_spec(_spec)
@@ -21,260 +23,498 @@ _spec.loader.exec_module(dark)
 CONTENT, NAV_ITEMS = dark.CONTENT, dark.NAV_ITEMS
 EMAIL, PHONE, X_HANDLE, LINKEDIN_URL = dark.EMAIL, dark.PHONE, dark.X_HANDLE, dark.LINKEDIN_URL
 
-# UI labels that only this layout needs (everything else comes from CONTENT).
+# ---------------------------------------------------------------- Official Tawuniya geometry
+# Read verbatim from the Tawuniya brand file (Figma "System Assets").
+# Never redraw these or scale them non-uniformly.
+# Crop behaviour, vector 26:2520 — three lobes joined by sculpted bridges.
+CROP_W, CROP_H = 3160.48, 639.84
+CROP_PATH = ("M2840.56 0L2442.92 0C2281.96 0 2148.8 118.88 2126.36 273.6C2123.6 292.52 2107.56 306.6 2088.44 306.6"
+             "L2004.12 306.6C1985.04 306.6 1968.96 292.52 1966.2 273.6C1943.76 118.88 1810.6 0 1649.64 0L1448.68 0"
+             "C1288.2 0 1155.36 118.16 1132.32 272.2C1129.36 291.92 1112.68 306.6 1092.76 306.6L1041.76 306.6"
+             "C1021.84 306.6 1005.12 291.88 1002.2 272.2C979.16 118.16 846.32 0 685.84 0L319.92 0"
+             "C143.24 0 0 143.24 0 319.92C0 496.6 143.24 639.84 319.92 639.84L685.84 639.84"
+             "C846.32 639.84 979.16 521.68 1002.2 367.64C1005.16 347.92 1021.84 333.24 1041.76 333.24L1092.76 333.24"
+             "C1112.68 333.24 1129.4 347.96 1132.32 367.64C1155.36 521.68 1288.2 639.84 1448.68 639.84L1649.64 639.84"
+             "C1810.6 639.84 1943.76 520.96 1966.2 366.24C1968.96 347.32 1985 333.24 2004.12 333.24L2088.44 333.24"
+             "C2107.52 333.24 2123.6 347.32 2126.36 366.24C2148.8 521 2281.96 639.84 2442.92 639.84L2840.56 639.84"
+             "C3017.24 639.84 3160.48 496.6 3160.48 319.92C3160.48 143.24 3017.24 0 2840.56 0Z")
+# Detail behaviour, vector 26:2398 — two pills joined by the same bridge construction (4.16 % of height).
+DETAIL_W, DETAIL_H = 410.48, 78.8
+DETAIL_PATH = ("M99.8 78.8C119.64 78.8 136 64.16 138.8 45.12C139.12 42.8 141.12 41.04 143.48 41.04L156.6 41.04"
+               "C158.96 41.04 160.92 42.76 161.28 45.12C164.04 64.16 180.44 78.8 200.28 78.8L371.08 78.8"
+               "C392.84 78.8 410.48 61.16 410.48 39.4C410.48 17.64 392.84 0 371.08 0L200.28 0"
+               "C180.44 0 164.08 14.64 161.28 33.68C160.96 36 158.96 37.76 156.6 37.76L143.48 37.76"
+               "C141.12 37.76 139.16 36.04 138.8 33.68C136.04 14.64 119.64 0 99.8 0L39.4 0"
+               "C17.64 0 0 17.64 0 39.4C0 61.16 17.64 78.8 39.4 78.8L99.8 78.8Z")
+
+# ---------------------------------------------------------------- UI strings (see AUDIT.md §3 for sign-off)
 UI = {
-  "en": {"journey_eyebrow": "The claim lifeline", "journey_h": "Every claim, one connected journey.",
-         "pause": "Pause animation", "play": "Play animation", "step": "Step",
-         "next": "Next step"},
-  "ar": {"journey_eyebrow": "مسار المطالبة", "journey_h": "كل مطالبة، رحلة واحدة مترابطة.",
-         "pause": "إيقاف الحركة", "play": "تشغيل الحركة", "step": "الخطوة",
-         "next": "الخطوة التالية"},
-}
+"en": {
+  "trust_h": "Regulatory standing",
+  "status_caption": "From medical authorization to transparent closure, every claim follows one connected journey.",
+  "pillars_h": "What we bring together",
+  "pillars": [
+    ("Advanced technology", "Intelligent digital solutions that simplify and streamline the medical claims lifecycle."),
+    ("Specialized expertise", "Experienced operational teams that help partners optimize claims operations and service quality."),
+    ("End-to-end lifecycle", "From medical authorizations and claims processing to settlement and financial reconciliation."),
+    ("Compliance", "Maintaining compliance with applicable regulatory and professional standards.")],
+  "aud_tabs": "Choose your organization type",
+  "aud_services": "Relevant Tamayah services",
+  "aud_cta": {"insurers": "Enquire as an insurer", "employers": "Enquire as a self-funded employer",
+              "systems": "Enquire as a health system", "providers": "Enquire as a healthcare provider",
+              "beneficiaries": "Contact our service team"},
+  "jx_h": "The claims journey",
+  "jx_intro": "Select a stage to see what happens and which Tamayah capability supports it.",
+  "jx_tabs": "Claims journey stages",
+  "jx_stage": "Stage", "jx_of": "of",
+  "jx_what": "What happens", "jx_role": "Role in the process", "jx_cap": "Related capability",
+  "jx_prev": "Previous stage", "jx_next": "Next stage",
+  "roles": ["Requests are reviewed for alignment with coverage benefits, policy terms and conditions, and regulatory requirements.",
+            "Claims are received, reviewed, validated and processed through technology-enabled systems.",
+            "Settlement is managed through structured processes with clear handling.",
+            "Financial reconciliation identifies and addresses discrepancies.",
+            "Claims are closed accurately and transparently."],
+  "svc_h": "Our services",
+  "care_shared": "Included in both services",
+  "care_plans": "Compare services",
+  "care_distinct": "Distinctive to this service",
+  "lead_role_sr": "Role", "board_member": "Board Member",
+  "form_h": "Send an enquiry",
+  "form_intro": "Tell us about your organization and we will prepare an email to our team.",
+  "f_name": "Full name", "f_org": "Organization", "f_role": "I am a…", "f_role_ph": "Select one",
+  "f_other": "Other", "f_email": "Work email", "f_phone": "Phone", "f_msg": "How can we help?", "f_opt": "optional",
+  "f_email_hint": "For example name@company.com",
+  "f_consent": "I agree that Tamayah may use these details to respond to my enquiry.",
+  "f_privacy": "Your details are used only to respond to your enquiry.",
+  "f_pending": "Wording pending approval",
+  "f_submit": "Send enquiry by email",
+  "f_how": "Submitting opens your email app with your enquiry addressed to info@tamayah.com. Nothing is sent until you press send there.",
+  "e_name": "Enter your full name.", "e_org": "Enter your organization's name.", "e_role": "Choose the option that best describes you.",
+  "e_email": "Enter your work email.", "e_email_fmt": "Enter an email address in the format name@company.com.",
+  "e_phone": "Enter a phone number using digits only, for example 920011978.",
+  "e_msg": "Tell us briefly how we can help.", "e_consent": "Confirm that we may use these details to respond.",
+  "e_summary": "Please correct {n} fields before sending.", "e_summary1": "Please correct 1 field before sending.",
+  "ok": "Your email app should now open with your enquiry. If it doesn't, email us at info@tamayah.com.",
+  "direct_h": "Or contact us directly",
+  "legal_h": "Legal", "legal": ["Privacy Policy", "Terms of Use", "Accessibility"], "legal_pending": "link pending approval",
+  "mail_subject": "Enquiry from the Tamayah website",
+  "mail_labels": {"name": "Name", "org": "Organization", "role": "I am a", "email": "Work email", "phone": "Phone", "msg": "Message"},
+},
+"ar": {
+  "trust_h": "الوضع التنظيمي",
+  "status_caption": "من الموافقة الطبية حتى الإغلاق الشفاف، تتبع كل مطالبة رحلة واحدة مترابطة.",
+  "pillars_h": "ما نجمع بينه",
+  "pillars": [
+    ("التقنيات المتقدمة", "حلول رقمية ذكية تبسّط دورة المطالبات الطبية وتديرها بكفاءة أعلى."),
+    ("الخبرات المتخصصة", "فرق تشغيلية ذات خبرة تساعد على تحسين عمليات إدارة المطالبات والارتقاء بجودة الخدمات."),
+    ("دورة متكاملة", "من إدارة الموافقات الطبية ومعالجة المطالبات إلى التسويات المالية والمطابقة."),
+    ("الالتزام", "ضمان الالتزام بالمعايير التنظيمية والمهنية المعمول بها.")],
+  "aud_tabs": "اختر نوع جهتك",
+  "aud_services": "خدمات تماية ذات الصلة",
+  "aud_cta": {"insurers": "استفسر بصفتك شركة تأمين", "employers": "استفسر بصفتك صاحب عمل يموّل برنامجه ذاتيًا",
+              "systems": "استفسر بصفتك منشأة صحية", "providers": "استفسر بصفتك مقدم خدمة صحية",
+              "beneficiaries": "تواصل مع فريق الخدمة"},
+  "jx_h": "رحلة المطالبة",
+  "jx_intro": "اختر مرحلة لمعرفة ما يحدث فيها وما القدرة التي تدعمها تماية.",
+  "jx_tabs": "مراحل رحلة المطالبة",
+  "jx_stage": "المرحلة", "jx_of": "من",
+  "jx_what": "ما يحدث", "jx_role": "الدور في العملية", "jx_cap": "القدرة ذات الصلة",
+  "jx_prev": "المرحلة السابقة", "jx_next": "المرحلة التالية",
+  "roles": ["تُراجع الطلبات للتأكد من توافقها مع منافع التغطية وشروط الوثيقة وأحكامها والمتطلبات التنظيمية.",
+            "تُستقبل المطالبات وتُراجع ويُتحقق منها وتُعالج عبر أنظمة مدعومة بالتقنية.",
+            "تُدار التسوية بإجراءات منظمة وآليات واضحة.",
+            "تُحدَّد الفروقات في المطابقة المالية وتُعالَج.",
+            "تُغلق المطالبات بدقة وشفافية."],
+  "svc_h": "خدماتنا",
+  "care_shared": "مشمولة في الخدمتين",
+  "care_plans": "قارن بين الخدمتين",
+  "care_distinct": "ما يميز هذه الخدمة",
+  "lead_role_sr": "المنصب", "board_member": "عضو مجلس المديرين",
+  "form_h": "أرسل استفسارك",
+  "form_intro": "أخبرنا عن جهتك وسنجهّز رسالة بريد إلكتروني إلى فريقنا.",
+  "f_name": "الاسم الكامل", "f_org": "الجهة", "f_role": "أنا…", "f_role_ph": "اختر",
+  "f_other": "أخرى", "f_email": "البريد الإلكتروني للعمل", "f_phone": "رقم الهاتف", "f_msg": "كيف يمكننا مساعدتك؟", "f_opt": "اختياري",
+  "f_email_hint": "مثال: name@company.com",
+  "f_consent": "أوافق على أن تستخدم تماية هذه البيانات للرد على استفساري.",
+  "f_privacy": "تُستخدم بياناتك فقط للرد على استفسارك.",
+  "f_pending": "الصياغة بانتظار الاعتماد",
+  "f_submit": "إرسال الاستفسار عبر البريد",
+  "f_how": "عند الإرسال يُفتح تطبيق البريد لديك وفيه استفسارك موجّهًا إلى info@tamayah.com. لا يُرسل شيء حتى تضغط إرسال هناك.",
+  "e_name": "أدخل اسمك الكامل.", "e_org": "أدخل اسم جهتك.", "e_role": "اختر الخيار الأنسب لك.",
+  "e_email": "أدخل بريدك الإلكتروني للعمل.", "e_email_fmt": "أدخل بريدًا إلكترونيًا بصيغة name@company.com.",
+  "e_phone": "أدخل رقم الهاتف بالأرقام فقط، مثل 920011978.",
+  "e_msg": "أخبرنا باختصار كيف يمكننا مساعدتك.", "e_consent": "أكّد موافقتك على استخدام هذه البيانات للرد.",
+  "e_summary": "يرجى تصحيح {n} حقول قبل الإرسال.", "e_summary1": "يرجى تصحيح حقل واحد قبل الإرسال.",
+  "ok": "يُفترض أن يُفتح تطبيق البريد الآن وفيه استفسارك. إن لم يُفتح، راسلنا على info@tamayah.com.",
+  "direct_h": "أو تواصل معنا مباشرة",
+  "legal_h": "قانوني", "legal": ["سياسة الخصوصية", "شروط الاستخدام", "إمكانية الوصول"], "legal_pending": "الرابط بانتظار الاعتماد",
+  "mail_subject": "استفسار من موقع تماية",
+  "mail_labels": {"name": "الاسم", "org": "الجهة", "role": "أنا", "email": "البريد الإلكتروني", "phone": "الهاتف", "msg": "الرسالة"},
+}}
 
-# ---------------------------------------------------------------- SVG pieces
-ARROW = '<svg class="ico flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h15M13 6l6 6-6 6"/></svg>'
-TICK = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
-PAUSE = '<svg class="ico ico--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg><svg class="ico ico--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10-6.5a1 1 0 0 0 0-1.72l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>'
+# Audience keys in the order of CONTENT[lang]["aud"]["items"], with the services relevant to each
+# (condensed from approved copy; listed for sign-off in AUDIT.md).
+AUDIENCES = [("insurers", ["auth", "claims", "settle", "phm", "call"]),
+             ("employers", ["claims", "settle", "phm"]),
+             ("systems", ["claims", "settle", "phm"]),
+             ("providers", ["auth", "claims", "settle", "call"]),
+             ("beneficiaries", ["call", "concierge", "elite"])]
+STAGE_CAPABILITY = ["auth", "claims", "settle", "settle", "settle"]
+SHARED_PERKS = 4  # the last four perks of each care service are identical (see AUDIT.md §3.12)
 
-# The Tawuniya "Crop" behaviour: two lobes joined by a lifeline neck.
-HOURGLASS = '''<svg class="hourglass" viewBox="0 0 200 400" aria-hidden="true" focusable="false">
-  <path d="M0 0H200V80A100 100 0 0 1 100 180A100 100 0 0 1 0 80Z"/>
-  <path d="M80 178C90 180 94 184 94 192V208C94 216 90 220 80 222H120C110 220 106 216 106 208V192C106 184 110 180 120 178Z"/>
-  <path d="M0 400H200V320A100 100 0 0 0 100 220A100 100 0 0 0 0 320Z"/>
-</svg>'''
+# ---------------------------------------------------------------- Icons (1.6px line icons, currentColor)
+def icon(name, cls="ico"):
+    p = {
+      "arrow": '<path d="M4 12h15M13 6l6 6-6 6"/>',
+      "back": '<path d="M20 12H5M11 6l-6 6 6 6"/>',
+      "check": '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      "shield": '<path d="M12 3l7 3v5.5c0 4.4-3 8.2-7 9.5-4-1.3-7-5.1-7-9.5V6z"/><path d="M9 12l2 2 4-4"/>',
+      "link": '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>',
+      "network": '<circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M12 7.2v4.3M12 11.5l-5.6 4.8M12 11.5l5.6 4.8"/>',
+      "chip": '<rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>',
+      "people": '<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.1 2.9-5 5.5-5s4.9 1.9 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M16 14.2c2.4.2 4.1 1.9 4.5 4.8"/>',
+      "cycle": '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 3v3.8h-3.8M6 21v-3.8h3.8"/>',
+      "scale": '<path d="M12 4v16M7 20h10M5 8h14"/><path d="M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/>',
+      "mail": '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
+      "phone": '<path d="M5 4h3.5l1.8 4.5-2.3 1.5a11 11 0 0 0 6 6l1.5-2.3L20 15.5V19a1.5 1.5 0 0 1-1.6 1.5A16 16 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/>',
+    }[name]
+    flip = " flip" if name in ("arrow", "back") else ""
+    return f'<svg class="{cls}{flip}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{p}</svg>'
 
-NECK = '<span class="neck" aria-hidden="true"></span>'
+
+def strip(s):
+    return re.sub(r"<[^>]+>", "", s).replace("&amp;", "&")
 
 
-def href(page, ext=""):
-    return f"{dict(NAV_ITEMS)[page]}{ext}"
+def monogram(name, lang):
+    """Initials of the first and family name, skipping titles and the Al-/ال article."""
+    words = [w for w in strip(name).replace("Eng.", "").replace("م.", "").split() if w not in ("بن", "آل")]
+    def initial(w):
+        if lang == "ar":
+            return w[2] if w.startswith("ال") and len(w) > 2 else w[0]
+        w = re.sub(r"^Al-?(?=[A-Z])", "", w)
+        return w[0]
+    letters = [initial(words[0]), initial(words[-1])] if len(words) > 1 else [initial(words[0])]
+    return (" " if lang == "ar" else "").join(letters)
 
 
-def target(link):
-    if "#" in link:
-        return "#" + link.split("#", 1)[1]
-    return href(link)
+def href(page):
+    return dict(NAV_ITEMS)[page]
 
 
-def head(eyebrow, h2, lede="", num=None, cls=""):
-    n = f'<span class="tag__n">{num}</span>' if num else ""
+def logo(cls, eager=False):
+    load = 'fetchpriority="high"' if eager else 'loading="lazy"'
+    return (f'<picture class="{cls}"><source type="image/webp" srcset="../assets/logo-320.webp 320w, ../assets/logo-640.webp 640w" sizes="160px">'
+            f'<img src="../assets/logo-320.png" srcset="../assets/logo-320.png 320w, ../assets/logo-640.png 640w" sizes="160px" width="320" height="105" alt="{{alt}}" {load}></picture>')
+
+
+def services(c):
+    e, s = c["eco"], c["suite"]
+    return {"auth": e["core"][0][0], "claims": e["core"][1][0], "settle": e["core"][2][0],
+            "phm": e["layers"][0][1], "call": e["layers"][1][1],
+            "concierge": s["concierge"]["t"], "elite": s["elite"]["t"]}
+
+
+def svc_target(k):
+    return {"auth": "#svc-auth", "claims": "#svc-claims", "settle": "#svc-settle", "phm": "#svc-phm",
+            "call": "#svc-call", "concierge": "#suite", "elite": "#suite"}[k]
+
+
+def shead(eyebrow, h2, lede="", hid=""):
     ld = f'<p class="lede rv" style="--d:2">{lede}</p>' if lede else ""
-    return f'''<div class="shead {cls}"><span class="tag rv">{n}{eyebrow}</span>
-    <h2 class="h2 rv" style="--d:1">{h2}</h2>{ld}</div>'''
+    idattr = f' id="{hid}"' if hid else ""
+    return f'''<div class="shead"><p class="eyebrow rv">{eyebrow}</p><h2 class="h2 rv" style="--d:1"{idattr}>{h2}</h2>{ld}</div>'''
 
 
 # ---------------------------------------------------------------- Components
 def header(c):
     nav = "".join(f'<li><a href="{href(p)}" data-nav-link>{c["nav"][p]}</a></li>' for p, _ in NAV_ITEMS)
-    drawer = "".join(f'<li><a href="{href(p)}"><span>{c["nav"][p]}</span><small>0{i+1}</small></a></li>'
-                     for i, (p, _) in enumerate(NAV_ITEMS))
+    drawer = "".join(f'<li><a href="{href(p)}"><span>{c["nav"][p]}</span>{icon("arrow")}</a></li>' for p, _ in NAV_ITEMS)
     en_cur = "true" if c["lang"] == "en" else "false"
     ar_cur = "true" if c["lang"] == "ar" else "false"
     lang = (f'<div class="lang" role="group" aria-label="{c["lang_label"]}">'
             f'<a href="../en/index.html" hreflang="en" lang="en" aria-current="{en_cur}">EN</a>'
             f'<a href="../ar/index.html" hreflang="ar" lang="ar" aria-current="{ar_cur}">عربي</a></div>')
     return f'''<header class="header"><div class="wrap header__in">
-  <a class="brand" href="#top" aria-label="{c["name"]}"><img src="../assets/Tamayah_Logo_POS.png" width="2400" height="784" alt="{c["name"]}"></a>
+  <a class="brand" href="#top">{logo("brand__logo", eager=True).replace("{alt}", c["name"])}</a>
   <nav class="nav" aria-label="Primary"><ul>{nav}</ul></nav>
   <div class="header__tools">{lang}
-    <a class="btn btn--sm header__cta" href="#partner">{c["cta"]}{ARROW}</a>
-    <button class="burger" type="button" aria-expanded="false" aria-controls="drawer" aria-label="{c["menu"]}"><span></span><span></span></button>
+    <a class="btn btn--sm header__cta" href="#partner">{c["cta"]}{icon("arrow")}</a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="drawer"><span class="sr-only">{c["menu"]}</span><span class="burger__bar" aria-hidden="true"></span><span class="burger__bar" aria-hidden="true"></span></button>
   </div>
-</div></header>
+</div>
 <div class="drawer" id="drawer"><nav aria-label="Mobile"><ul>{drawer}</ul></nav>
-  <a class="btn" href="#partner">{c["cta"]}{ARROW}</a></div>'''
+  <a class="btn" href="#partner">{c["cta"]}{icon("arrow")}</a></div></header>'''
+
+
+def status_visual(c):
+    """Hero claim-status visual built on the official Crop connected shape (26:2520)."""
+    u = UI[c["lang"]]
+    picks = [0, 2, 4]  # authorization, settlement, closure — illustrative, labelled as such
+    tones = ["dark", "teal", "neon"]
+    lobes = ""
+    for n, (i, tone) in enumerate(zip(picks, tones)):
+        t, s = c["states"][i]
+        tick = icon("check", "ico status__tick") if i == 4 else ""
+        lobes += f'''<li class="status__lobe status__lobe--{n+1} status__lobe--{tone}" style="--i:{n}"><span class="status__n">0{i+1}</span><span class="status__t">{t}</span><span class="status__s">{s}</span>{tick}</li>'''
+    legend = "".join(f'<span><b>0{i+1}</b> {c["states"][i][0]}</span>' for i in picks)
+    split1, split2 = 1067.26, 2046.28  # mid-points of the two official bridges
+    svg = f'''<svg class="status__shape" viewBox="0 0 {CROP_W} {CROP_H}" aria-hidden="true" focusable="false">
+  <defs><clipPath id="crop-shape"><path d="{CROP_PATH}"/></clipPath></defs>
+  <g clip-path="url(#crop-shape)">
+    <rect class="f-dark" x="0" y="0" width="{split1}" height="{CROP_H}"/>
+    <rect class="f-teal" x="{split1}" y="0" width="{split2 - split1:.2f}" height="{CROP_H}"/>
+    <rect class="f-neon" x="{split2}" y="0" width="{CROP_W - split2:.2f}" height="{CROP_H}"/>
+  </g></svg>'''
+    return f'''<figure class="status fade-up" style="--d:4">
+  <div class="status__art">{svg}<ol class="status__lobes">{lobes}</ol></div>
+  <figcaption class="status__cap"><span class="status__legend" aria-hidden="true">{legend}</span>{u["status_caption"]}</figcaption>
+</figure>'''
 
 
 def hero(c):
-    h = c["hero"]
+    h, r, u = c["hero"], c["reg"], UI[c["lang"]]
     lines = "".join(f'<span class="line"><span style="--i:{i}">{t}</span></span>' for i, t in enumerate(h["lines"]))
-    meta = NECK.join(f'<span class="cap cap--chip">{m}</span>' for m in h["meta"])
-    last_t, last_s = c["states"][-1]
-    return f'''<section class="hero" id="top">
-  <div class="gridlines" aria-hidden="true"></div>
-  <div class="wrap hero__in">
-    <div class="hero__copy">
-      <span class="tag fade-up">{h["eyebrow"]}</span>
-      <h1 class="h1">{lines}</h1>
-      <p class="lede fade-up" style="--d:3">{h["lede"]}</p>
-      <div class="hero__actions fade-up" style="--d:4">
-        <a class="btn" href="#partner">{h["primary"]}{ARROW}</a>
-        <a class="btn btn--outline" href="#services">{h["secondary"]}</a>
+    chips = [("shield", h["meta"][0]), ("link", h["meta"][1])]
+    trust = "".join(f'<li class="trust__item">{icon(ic)}<span>{t}</span></li>' for ic, t in chips)
+    return f'''<section class="hero" id="top" aria-labelledby="hero-h">
+  <div class="wrap">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow fade-up">{h["eyebrow"]}</p>
+        <h1 class="h1" id="hero-h">{lines}</h1>
       </div>
-    </div>
-    <div class="hero__art fade-up" style="--d:2" aria-hidden="true">
-      <div class="ll ll--v">
-        <figure class="cap cap--photo"><img src="../assets/img/consult-desk.jpg" width="1400" height="1050" alt=""></figure>
-        {NECK}
-        <div class="ll">
-          <div class="cap cap--mint"><span class="cap__tick">{TICK}</span><span><b>{last_t}</b><small>{last_s}</small></span></div>
+      <div class="hero__side">
+        <p class="lede fade-up" style="--d:2">{h["lede"]}</p>
+        <div class="hero__actions fade-up" style="--d:3">
+          <a class="btn" href="#partner">{h["primary"]}{icon("arrow")}</a>
+          <a class="btn btn--ghost" href="#services">{h["secondary"]}</a>
         </div>
       </div>
     </div>
+    {status_visual(c)}
+    <div class="trust fade-up" style="--d:5">
+      <h2 class="sr-only">{u["trust_h"]}</h2>
+      <div class="trust__stat"><span class="stat"><span class="stat__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="stat__u">+</span></span><span class="stat__l">{r["count_label"]}</span></div>
+      <ul class="trust__list">{trust}</ul>
+      <p class="trust__reg">{r["text"]}</p>
+    </div>
   </div>
-  <div class="wrap"><div class="ll ll--meta fade-up" style="--d:5">{meta}</div></div>
 </section>'''
 
 
-def journey(c):
-    u = UI[c["lang"]]
-    steps = ""
-    for i, (t, s) in enumerate(c["states"]):
-        steps += f'''<li class="step" data-step="{i}"><div class="step__pill"><span class="step__n"><span class="sr-only">{u["step"]} </span>0{i+1}</span><span class="step__t">{t}</span><span class="step__tick">{TICK}</span></div><p class="step__d">{s}</p></li>'''
-    return f'''<section class="section journey" aria-labelledby="journey-h"><div class="wrap">
-  <div class="journey__top">
-    <div class="shead"><span class="tag rv">{u["journey_eyebrow"]}</span><h2 class="h2 rv" id="journey-h" style="--d:1">{u["journey_h"]}</h2></div>
-    <button class="pp rv" type="button" aria-pressed="false" data-label-pause="{u["pause"]}" data-label-play="{u["play"]}" hidden>{PAUSE}<span class="sr-only">{u["pause"]}</span></button>
-  </div>
-  <ol class="steps rv" style="--d:2" aria-label="{c["stack_aria"]}">{steps}</ol>
-</div></section>'''
-
-
-def ledger(c):
-    r = c["reg"]
-    return f'''<section class="section ledger" aria-label="{r["tag"]}"><div class="wrap">
-  <div class="ledger__box rv">
-    <div class="ledger__num"><span class="count"><span data-count="{r["count"]}">{r["count"]:,}</span><sup>+</sup></span><span class="ledger__lbl">{r["count_label"]}</span></div>
-    <div class="ledger__txt"><span class="tag">{r["tag"]}</span><p>{r["text"]}</p></div>
-  </div>
-</div></section>'''
-
-
 def about(c):
-    a = c["about"]
-    paras = "".join(f"<p>{p}</p>" for p in a["paras"])
-    return f'''<section class="section about" id="about"><div class="wrap split">
-  <div class="shead"><span class="tag rv"><span class="tag__n">01</span>{a["eyebrow"]}</span><h2 class="h2 rv" style="--d:1">{a["h1"]}</h2><p class="lede rv" style="--d:2">{a["lede"]}</p></div>
-  <div class="prose rv" style="--d:2">{paras}</div></div></section>'''
+    a, v, u = c["about"], c["vmc"], UI[c["lang"]]
+    icons = ["chip", "people", "cycle", "scale"]
+    pillars = "".join(f'<li class="pillar rv" style="--d:{i}">{icon(icons[i])}<h4 class="h4">{t}</h4><p>{d}</p></li>'
+                      for i, (t, d) in enumerate(u["pillars"]))
+    return f'''<section class="section about" id="about" aria-labelledby="about-h"><div class="wrap">
+  <div class="split">
+    {shead(a["eyebrow"], a["h1"], a["lede"], "about-h")}
+    <div><h3 class="label rv">{u["pillars_h"]}</h3><ul class="pillars">{pillars}</ul></div>
+  </div>
+  <div class="vision rv">
+    <div class="vision__main"><h3 class="label">{v["vision_h"]}</h3><p class="statement">{v["vision"]}</p></div>
+    <div class="vision__col"><h3 class="label">{v["mission_h"]}</h3><p>{v["mission"]}</p></div>
+    <div class="vision__col"><h3 class="label">{v["commit_h"]}</h3><p>{v["commit"][0]}</p></div>
+  </div>
+</div></section>'''
 
 
 def audiences(c):
-    a = c["aud"]
-    items = "".join(
-        f'''<li class="aud__i rv" style="--d:{i}"><a class="aud__a" href="{target(link)}"><span class="aud__n">0{i+1}</span><h3 class="h3">{t}</h3><p>{d}</p><span class="aud__go">{ARROW}</span></a></li>'''
-        for i, (t, d, link) in enumerate(a["items"]))
-    return f'''<section class="section aud"><div class="wrap">
-  {head(a["eyebrow"], a["h2"], a["lede"], "02")}
-  <ul class="aud__grid">{items}</ul></div></section>'''
+    a, u, svc = c["aud"], UI[c["lang"]], services(c)
+    tabs, panels = "", ""
+    for i, ((key, keys), (t, d, _)) in enumerate(zip(AUDIENCES, a["items"])):
+        sel = "true" if i == 0 else "false"
+        tabs += f'<button class="seg__tab" type="button" role="tab" id="tab-{key}" aria-controls="audience-{key}" aria-selected="{sel}" tabindex="{0 if i == 0 else -1}">{t}</button>'
+        items = "".join(f'<li><a href="{svc_target(k)}">{icon("check")}<span>{svc[k]}</span></a></li>' for k in keys)
+        panels += f'''<div class="aud__panel" id="audience-{key}" role="tabpanel" aria-labelledby="tab-{key}" tabindex="0">
+  <div class="aud__main"><span class="aud__n" aria-hidden="true">0{i+1}</span><h3 class="h3">{t}</h3><p class="aud__vp">{d}</p>
+    <a class="btn" href="#partner" data-audience="{key}">{u["aud_cta"][key]}{icon("arrow")}</a></div>
+  <div class="aud__svc"><h4 class="label">{u["aud_services"]}</h4><ul class="svc-list">{items}</ul></div>
+</div>'''
+    return f'''<section class="section aud" id="audiences" aria-labelledby="aud-h"><div class="wrap">
+  {shead(a["eyebrow"], a["h2"], a["lede"], "aud-h")}
+  <div class="aud__x rv" data-tabs data-hash="audience-">
+    <div class="seg seg--scroll" role="tablist" aria-label="{u["aud_tabs"]}">{tabs}</div>
+    <div class="aud__panels">{panels}</div>
+  </div>
+</div></section>'''
+
+
+def journey(c):
+    u, svc = UI[c["lang"]], services(c)
+    n = len(c["states"])
+    tabs, panels = "", ""
+    for i, (t, s) in enumerate(c["states"]):
+        sel = "true" if i == 0 else "false"
+        tabs += f'''<button class="jx__tab" type="button" role="tab" id="stage-tab-{i+1}" aria-controls="stage-{i+1}" aria-selected="{sel}" tabindex="{0 if i == 0 else -1}"><span class="jx__dot" aria-hidden="true">0{i+1}</span><span class="jx__t">{t}</span></button>'''
+        cap = STAGE_CAPABILITY[i]
+        done = ""
+        if i == n - 1:
+            done = f'''<div class="closed" aria-hidden="true"><svg viewBox="0 0 {DETAIL_W} {DETAIL_H}" focusable="false"><path d="{DETAIL_PATH}"/></svg>
+  <span class="closed__ico">{icon("check")}</span><span class="closed__t">{t}</span></div>'''
+        prev = f'<button class="btn btn--ghost btn--sm" type="button" data-step="-1">{icon("back")}{u["jx_prev"]}</button>' if i else ""
+        nxt = f'<button class="btn btn--sm" type="button" data-step="1">{u["jx_next"]}{icon("arrow")}</button>' if i < n - 1 else ""
+        panels += f'''<div class="jx__panel" id="stage-{i+1}" role="tabpanel" aria-labelledby="stage-tab-{i+1}" tabindex="0">
+  <p class="jx__count">{u["jx_stage"]} {i+1} {u["jx_of"]} {n}</p>
+  <h4 class="h3">{t}</h4>{done}
+  <dl class="jx__dl">
+    <div><dt>{u["jx_what"]}</dt><dd>{s}</dd></div>
+    <div><dt>{u["jx_role"]}</dt><dd>{u["roles"][i]}</dd></div>
+    <div><dt>{u["jx_cap"]}</dt><dd><a class="link" href="{svc_target(cap)}">{svc[cap]}{icon("arrow")}</a></dd></div>
+  </dl>
+  <div class="jx__nav">{prev}{nxt}</div>
+</div>'''
+    return f'''<div class="jx rv" data-tabs data-hash="stage-">
+  <div class="jx__head"><h3 class="h3">{u["jx_h"]}</h3><p>{u["jx_intro"]}</p></div>
+  <div class="jx__rail"><span class="jx__track" aria-hidden="true"><span class="jx__fill"></span></span>
+    <div class="jx__tabs" role="tablist" aria-label="{u["jx_tabs"]}">{tabs}</div></div>
+  <div class="jx__panels">{panels}</div>
+</div>'''
 
 
 def eco(c):
-    e = c["eco"]
-    svcs = "".join(
-        f'''<li class="svc rv" style="--d:{i}"><span class="svc__n">0{i+1}</span><h3 class="h3">{t}</h3><p>{d}</p></li>'''
-        for i, (t, d) in enumerate(e["core"]))
-    layers = "".join(
-        f'''<div class="layer rv" style="--d:{i}"><span class="tag tag--chip">{tag}</span><h3 class="h3">{t}</h3><p>{d}</p></div>'''
-        for i, (tag, t, d) in enumerate(e["layers"]))
-    return f'''<section class="section eco" id="services">
-  <div class="gridlines" aria-hidden="true"></div>
-  <div class="wrap">
-  {head(e["eyebrow"], e["h2"], e["lede"], "03")}
-  <ol class="svcs">{svcs}</ol>
-  <div class="layers">{layers}</div>
-  <p class="rv eco__more"><a class="link" href="#suite">{e["more"]}{ARROW}</a></p>
+    e, u = c["eco"], UI[c["lang"]]
+    ids = ["svc-auth", "svc-claims", "svc-settle"]
+    core = "".join(f'<li class="svc rv" id="{ids[i]}" style="--d:{i}"><span class="svc__n">0{i+1}</span><h4 class="h3">{t}</h4><p>{d}</p></li>'
+                   for i, (t, d) in enumerate(e["core"]))
+    lids = ["svc-phm", "svc-call"]
+    layers = "".join(f'<li class="svc svc--layer rv" id="{lids[i]}" style="--d:{i}"><p class="label">{tag}</p><h4 class="h3">{t}</h4><p>{d}</p></li>'
+                     for i, (tag, t, d) in enumerate(e["layers"]))
+    return f'''<section class="section eco" id="services" aria-labelledby="eco-h"><div class="wrap">
+  {shead(e["eyebrow"], e["h2"], e["lede"], "eco-h")}
+  {journey(c)}
+  <h3 class="label svc__h rv">{u["svc_h"]}</h3>
+  <ul class="svcs">{core}{layers}</ul>
 </div></section>'''
 
 
 def suite(c):
-    s = c["suite"]
-
-    def col(k, mod):
+    s, u = c["suite"], UI[c["lang"]]
+    shared = s["elite"]["perks"][-SHARED_PERKS:]
+    shared_html = "".join(f'<li>{icon("check")}<span><b>{a}</b>{b}</span></li>' for a, b in shared)
+    plans, tabs = "", ""
+    for i, k in enumerate(("concierge", "elite")):
         d = s[k]
-        perks = "".join(f'<li>{TICK}<span><b>{a}</b>{b}</span></li>' for a, b in d["perks"])
-        return f'''<article class="tier tier--{mod} rv"><h3 class="h3">{d["t"]}</h3><p class="tier__intro">{d["intro"]}</p><span class="tier__hours">{d["hours"]}</span><ul class="perks">{perks}</ul></article>'''
-
-    return f'''<section class="section suite" id="suite"><div class="wrap">
-  <div class="ll ll--suite rv">
-    <figure class="cap cap--photo"><img src="../assets/img/care-understood.jpg" width="1400" height="933" alt="" loading="lazy"></figure>
-    {NECK}
-    <div class="cap cap--teal"><span class="tag tag--on-teal">{s["eyebrow"]}</span><h2 class="h2">{s["h2"]}</h2><p>{s["lede"]}</p></div>
+        own = d["perks"][:len(d["perks"]) - SHARED_PERKS]
+        own_html = "".join(f'<li>{icon("check")}<span><b>{a}</b>{b}</span></li>' for a, b in own)
+        sel = "true" if i == 0 else "false"
+        tabs += f'<button class="seg__tab" type="button" role="tab" id="plan-tab-{k}" aria-controls="plan-{k}" aria-selected="{sel}" tabindex="{0 if i == 0 else -1}">{d["t"]}</button>'
+        plans += f'''<div class="plan plan--{k}" id="plan-{k}" role="tabpanel" aria-labelledby="plan-tab-{k}">
+  <h3 class="h3">{d["t"]}</h3><p>{d["intro"]}</p><p class="plan__hours">{d["hours"]}</p>
+  <h4 class="label">{u["care_distinct"]}</h4><ul class="perks">{own_html}</ul></div>'''
+    return f'''<section class="section suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
+  {shead(s["eyebrow"], s["h2"], s["lede"], "suite-h")}
+  <div class="care rv" data-tabs data-mobile-only>
+    <div class="seg care__seg" role="tablist" aria-label="{u["care_plans"]}">{tabs}</div>
+    <div class="care__plans">{plans}</div>
+    <div class="care__shared"><h3 class="label">{u["care_shared"]}</h3><ul class="perks perks--shared">{shared_html}</ul></div>
   </div>
-  <div class="tiers">{col("concierge", "a")}{col("elite", "b")}</div>
 </div></section>'''
 
 
 def why(c):
     w = c["why"]
-    paras = "".join(f"<p>{p}</p>" for p in w["paras"])
-    vals = "".join(
-        f'<li class="val rv" style="--d:{i}"><span class="val__n">0{i+1}</span><h4 class="h3">{t}</h4><p>{d}</p></li>'
-        for i, (t, d) in enumerate(w["values"]))
-    return f'''<section class="section why" id="why"><div class="wrap">
-  <div class="why__top">
-    <div><span class="tag rv"><span class="tag__n">04</span>{w["eyebrow"]}</span>
-    <h2 class="quote rv" style="--d:1">{w["quote"]}</h2></div>
-    {HOURGLASS}
-  </div>
-  <div class="prose prose--cols rv">{paras}</div>
-  <h3 class="tag rv values__h">{w["values_h"]}</h3>
+    vals = "".join(f'<li class="val rv" style="--d:{i}"><span class="val__n">0{i+1}</span><h4 class="h4">{t}</h4><p>{d}</p></li>'
+                   for i, (t, d) in enumerate(w["values"]))
+    return f'''<section class="section why" id="why" aria-labelledby="why-h"><div class="wrap">
+  <div class="why__lead"><p class="eyebrow rv">{w["eyebrow"]}</p><h2 class="statement rv" style="--d:1" id="why-h">{w["quote"]}</h2></div>
+  <h3 class="label rv">{w["values_h"]}</h3>
   <ul class="values">{vals}</ul>
 </div></section>'''
 
 
-def vmc(c):
-    v = c["vmc"]
-    commit = "".join(f"<p>{p}</p>" for p in v["commit"])
-    return f'''<section class="section vmc"><div class="wrap">
-  <svg class="vmc__ll" viewBox="0 0 600 200" aria-hidden="true" focusable="false"><rect x="0" y="40" width="250" height="120" rx="60"/><path d="M244 86C256 86 260 96 268 96H332C340 96 344 86 356 86V114C344 114 340 104 332 104H268C260 104 256 114 244 114Z"/><rect x="350" y="0" width="250" height="200" rx="100"/></svg>
-  <div class="vmc__vision rv"><span class="tag tag--on-teal">{v["vision_h"]}</span><p class="quote">{v["vision"]}</p></div>
-  <div class="vmc__cols">
-    <div class="rv"><h3 class="h3">{v["mission_h"]}</h3><p>{v["mission"]}</p></div>
-    <div class="rv" style="--d:2"><h3 class="h3">{v["commit_h"]}</h3>{commit}</div>
-  </div>
-</div></section>'''
-
-
 def leadership(c):
-    l = c["lead"]
-    rows = "".join(
-        f'''<div class="lead__row rv" style="--d:{i}"><span class="lead__role">{r}</span><ul class="ll ll--names">{NECK.join(f'<li class="cap cap--name">{n}</li>' for n in names)}</ul></div>'''
-        for i, (r, names) in enumerate(l["rows"]))
-    return f'''<section class="section lead" id="leadership"><div class="wrap">
-  <div class="shead"><span class="tag rv"><span class="tag__n">05</span>{l["eyebrow"]}</span><h2 class="h2 rv" style="--d:1">{l["h2"]}</h2></div>
-  <div class="lead__rows">{rows}</div></div></section>'''
-
-
-def cta(c):
-    b = c["cta_block"]
-    return f'''<section class="section cta" id="partner"><div class="wrap">
-  <div class="cta__panel rv">
-    <div class="cta__copy">
-      <span class="tag">{b["eyebrow"]}</span>
-      <h2 class="h1 cta__h">{b["h2"]}</h2>
-      <p class="lede">{b["text"]}</p><p>{b["text2"]}</p>
-      <div class="cta__actions"><a class="btn" href="mailto:{EMAIL}">{b["email"]}{ARROW}</a><a class="btn btn--outline" href="tel:{PHONE}">{b["call"]}</a></div>
-    </div>
-    {HOURGLASS}
-  </div>
+    l, u = c["lead"], UI[c["lang"]]
+    cards = ""
+    i = 0
+    for role, names in l["rows"]:
+        if len(names) > 1:  # one card per person, so a plural row label becomes singular
+            role = u["board_member"]
+        for n in names:
+            cards += f'''<li class="person rv" style="--d:{i}"><span class="person__mono" aria-hidden="true">{monogram(n, c["lang"])}</span>
+  <h3 class="person__name">{n}</h3><p class="person__role"><span class="sr-only">{u["lead_role_sr"]}: </span>{role}</p></li>'''
+            i += 1
+    return f'''<section class="section lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
+  {shead(l["eyebrow"], l["h2"], "", "lead-h")}
+  <ul class="people">{cards}</ul>
 </div></section>'''
+
+
+def field(fid, label, u, kind="text", req=True, auto="", extra="", hint=""):
+    opt = "" if req else f' <span class="field__opt">({u["f_opt"]})</span>'
+    reqa = ' required aria-required="true"' if req else ""
+    hint_html = f'<p class="field__hint" id="{fid}-hint">{hint}</p>' if hint else ""
+    desc = f"{fid}-err" + (f" {fid}-hint" if hint else "")
+    ac = f' autocomplete="{auto}"' if auto else ""
+    if kind == "textarea":
+        ctl = f'<textarea id="{fid}" name="{fid}" rows="5"{reqa} aria-describedby="{desc}"{extra}></textarea>'
+    else:
+        ctl = f'<input id="{fid}" name="{fid}" type="{kind}"{ac}{reqa} aria-describedby="{desc}"{extra}>'
+    return f'''<div class="field"><label for="{fid}">{label}{opt}</label>{ctl}{hint_html}<p class="field__err" id="{fid}-err" hidden></p></div>'''
 
 
 def contact(c):
-    k = c["contact"]; r = k["rows"]
-    return f'''<section class="section contact" id="contact"><div class="wrap split">
-  <div class="shead"><span class="tag rv"><span class="tag__n">06</span>{k["eyebrow"]}</span><h2 class="h2 rv" style="--d:1">{k["h2"]}</h2><p class="lede rv" style="--d:2">{k["lede"]}</p>
-    <img class="contact__logo rv" style="--d:3" src="../assets/Tamayah_Logo_POS.png" width="2400" height="784" alt="{c["name"]}" loading="lazy"></div>
-  <dl class="contact__list rv">
-    <div><dt>{r["email"]}</dt><dd><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
-    <div><dt>{r["phone"]}</dt><dd><a class="ltr" href="tel:{PHONE}">{PHONE}</a></dd></div>
-    <div><dt>{r["linkedin"]}</dt><dd><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">{k["linkedin_text"]}</a></dd></div>
-    <div><dt>{r["x"]}</dt><dd><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">@{X_HANDLE}</a></dd></div>
-  </dl></div></section>'''
+    b, k, u, r = c["cta_block"], c["contact"], UI[c["lang"]], c["contact"]["rows"]
+    opts = "".join(f'<option value="{key}">{strip(t)}</option>' for (key, _), (t, _d, _l) in zip(AUDIENCES, c["aud"]["items"]))
+    opts += f'<option value="other">{u["f_other"]}</option>'
+    errs = {k2: v for k2, v in u.items() if k2.startswith("e_") or k2 == "ok"}
+    data = " ".join(f'data-{k2.replace("_", "-")}="{html.escape(v)}"' for k2, v in errs.items())
+    labels = " ".join(f'data-l-{k2}="{html.escape(v)}"' for k2, v in u["mail_labels"].items())
+    form = f'''<form class="form" id="enquiry" action="mailto:{EMAIL}" method="post" enctype="text/plain" novalidate
+  data-email="{EMAIL}" data-subject="{html.escape(u["mail_subject"])}" {data} {labels}>
+  <div class="form__summary" role="alert" tabindex="-1" hidden></div>
+  <div class="form__grid">
+    {field("name", u["f_name"], u, auto="name")}
+    {field("org", u["f_org"], u, auto="organization")}
+    <div class="field"><label for="role">{u["f_role"]}</label>
+      <select id="role" name="role" required aria-required="true" aria-describedby="role-err"><option value="">{u["f_role_ph"]}</option>{opts}</select>
+      <p class="field__err" id="role-err" hidden></p></div>
+    {field("email", u["f_email"], u, kind="email", auto="email", hint=u["f_email_hint"], extra=' inputmode="email" spellcheck="false" dir="ltr"')}
+    {field("phone", u["f_phone"], u, kind="tel", req=False, auto="tel", extra=' inputmode="tel" dir="ltr"')}
+  </div>
+  {field("msg", u["f_msg"], u, kind="textarea")}
+  <div class="consent">
+    <p class="pending"><span class="pending__tag">{u["f_pending"]}</span> {u["f_privacy"]}</p>
+    <div class="check"><input id="consent" name="consent" type="checkbox" required aria-required="true" aria-describedby="consent-err">
+      <label for="consent">{u["f_consent"]}</label></div>
+    <p class="field__err" id="consent-err" hidden></p>
+  </div>
+  <div class="form__foot"><button class="btn" type="submit">{u["f_submit"]}{icon("arrow")}</button><p class="form__how">{u["f_how"]}</p></div>
+  <p class="form__ok" role="status" aria-live="polite"></p>
+</form>'''
+    return f'''<section class="section contact" id="contact" aria-labelledby="partner-h"><div class="wrap">
+  <div class="contact__grid">
+    <div class="contact__intro" id="partner">
+      <p class="eyebrow rv">{b["eyebrow"]}</p>
+      <h2 class="h2 rv" style="--d:1" id="partner-h">{b["h2"]}</h2>
+      <p class="lede rv" style="--d:2">{b["text"]}</p><p class="rv" style="--d:2">{b["text2"]}</p>
+      <h3 class="label direct__h">{u["direct_h"]}</h3>
+      <ul class="direct">
+        <li>{icon("mail")}<span><span class="direct__l">{r["email"]}</span><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></span></li>
+        <li>{icon("phone")}<span><span class="direct__l">{r["phone"]}</span><a class="ltr" href="tel:{PHONE}">{PHONE}</a></span></li>
+      </ul>
+    </div>
+    <div class="contact__form rv"><h3 class="h3">{u["form_h"]}</h3><p class="form__intro">{u["form_intro"]}</p>{form}</div>
+  </div>
+</div></section>'''
 
 
 def footer(c):
-    f = c["footer"]
+    f, u, k = c["footer"], UI[c["lang"]], c["contact"]
     nav = "".join(f'<li><a href="{href(p)}">{c["nav"][p]}</a></li>' for p, _ in NAV_ITEMS)
+    legal = "".join(f'<li><span class="pending-link">{t} <small>({u["legal_pending"]})</small></span></li>' for t in u["legal"])
     return f'''<footer class="footer"><div class="wrap">
   <div class="footer__top">
-    <div><a class="brand" href="#top" aria-label="{c["name"]}"><img src="../assets/Tamayah_Logo_POS.png" width="2400" height="784" alt="{c["name"]}" loading="lazy"></a><p class="footer__reg">{f["reg"]}</p></div>
-    <div><h2 class="footer__h">{f["explore"]}</h2><ul>{nav}</ul></div>
+    <div class="footer__brand"><a class="brand" href="#top">{logo("brand__logo").replace("{alt}", c["name"])}</a><p class="footer__reg">{f["reg"]}</p></div>
+    <nav aria-labelledby="f-explore"><h2 class="footer__h" id="f-explore">{f["explore"]}</h2><ul>{nav}</ul></nav>
     <div><h2 class="footer__h">{f["contact"]}</h2><ul>
       <li><a class="ltr" href="tel:{PHONE}">{PHONE}</a></li>
       <li><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></li>
-      <li><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">LinkedIn · Tamayah</a></li>
+      <li><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">LinkedIn · {k["linkedin_text"]}</a></li>
       <li><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">X · @{X_HANDLE}</a></li></ul></div>
+    <div><h2 class="footer__h">{u["legal_h"]}</h2><ul class="legal">{legal}</ul></div>
   </div>
   <div class="footer__bot"><span>{f["rights"]}</span></div>
 </div></footer>'''
@@ -282,9 +522,8 @@ def footer(c):
 
 def render(lang):
     c = CONTENT[lang]
-    body = (hero(c) + journey(c) + ledger(c) + about(c) + audiences(c) + eco(c) + suite(c)
-            + why(c) + vmc(c) + leadership(c) + cta(c) + contact(c))
-    return f'''<!doctype html>
+    body = hero(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
+    page = f'''<!DOCTYPE html>
 <html lang="{lang}" dir="{c["dir"]}" class="no-js">
 <head>
 <meta charset="utf-8">
@@ -292,11 +531,14 @@ def render(lang):
 <title>{html.escape(c["titles"]["index"], quote=False)}</title>
 <meta name="description" content="{html.escape(c["desc"])}">
 <meta name="theme-color" content="#F7F6F2">
-<link rel="alternate" hreflang="en" href="../en/index.html">
-<link rel="alternate" hreflang="ar" href="../ar/index.html">
+<link rel="canonical" href="{SITE_URL}{lang}/index.html">
+<link rel="alternate" hreflang="en" href="{SITE_URL}en/index.html">
+<link rel="alternate" hreflang="ar" href="{SITE_URL}ar/index.html">
+<link rel="alternate" hreflang="x-default" href="{SITE_URL}">
 <link rel="icon" type="image/png" href="../assets/mark.png">
 <link rel="preload" href="../assets/fonts/tawuniya-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/style.css">
+<script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
 <body>
 <a class="skip" href="#main">{c["skip"]}</a>
@@ -309,19 +551,20 @@ def render(lang):
 </body>
 </html>
 '''
+    return re.sub(r"&(?![a-zA-Z]+;|#[0-9]+;|#x[0-9a-fA-F]+;)", "&amp;", page)  # escape bare & from shared copy
 
 
-ROOT_INDEX = '''<!doctype html>
+ROOT_INDEX = '''<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tamayah | تماية</title><meta name="theme-color" content="#F7F6F2">
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F7F6F2;color:#132028;font-family:system-ui,sans-serif;text-align:center}
-a{color:#326B73;margin:0 12px;font-size:1.2rem}img{width:220px;height:auto;margin-bottom:28px}</style>
+a{color:#326B73;margin:0 12px;font-size:1.2rem}img{width:220px;height:auto;margin:0 auto 28px}</style>
 <script>
 (function(){var l;try{l=localStorage.getItem('tamayah-lang')}catch(e){}
 if(!l){l=(navigator.language||'en').toLowerCase().indexOf('ar')===0?'ar':'en'}
-location.replace(l+'/index.html')})();
+location.replace(l+'/index.html'+location.hash)})();
 </script></head>
-<body><div><img src="assets/Tamayah_Logo_POS.png" width="2400" height="784" alt="Tamayah تماية"><br><a href="en/index.html">English</a><a href="ar/index.html" lang="ar">العربية</a></div></body></html>
+<body><div><img src="assets/logo-640.png" width="640" height="209" alt="Tamayah تماية"><br><a href="en/index.html">English</a><a href="ar/index.html" lang="ar">العربية</a></div></body></html>
 '''
 
 
