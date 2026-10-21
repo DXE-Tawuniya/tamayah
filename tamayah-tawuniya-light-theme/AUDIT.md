@@ -97,7 +97,8 @@ How these rules are applied:
    define official tints.
 6. **Arabic numerals.** The guidelines do not specify Arabic-Indic vs Western digits. The existing approved Arabic copy
    uses Western digits, so I kept them.
-7. **LinkedIn URL** is still the search URL inherited from the dark option. The official company page is unverified.
+7. **LinkedIn URL** is still the search URL inherited from the dark option. The official company page is unverified:
+   a web search on 2026-10-21 found no Tamayah company page, so the link is left unchanged.
 8. **Privacy, Terms and Accessibility pages** have no approved URLs, so the footer shows labelled placeholders.
 9. **Enquiry form.** There is no approved backend endpoint, and the privacy and consent copy needs legal approval.
 10. **Leadership portraits** have not been approved, so the leadership cards use monograms.
@@ -132,3 +133,17 @@ Full results are in `README.md` → "Validation results".
 | Stock-photo LCP | Abstract claim-status visual; mobile Performance 82 → 92–93 |
 | 26 px reveal movement | 16 px, 600 ms, 70 ms stagger |
 | Mobile page height | Page height (EN): 11,634 → 9,705 px on desktop and 16,550 → 14,086 px on mobile |
+
+## Connector geometry verification (2026-10-21)
+
+On 2026-10-21 I re-read both official vectors from Figma and compared them with the constants in `build.py`:
+
+| Figma node | Shipped constant | SVG commands | Numbers compared | Max deviation |
+|---|---|---|---|---|
+| `26:2520` Crop, 3160.48 × 639.84 | `CROP_PATH` | identical (174 tokens) | 142 | 0.0001 units (2-dp rounding) |
+| `26:2398` Detail, 410.48 × 78.8 | `DETAIL_PATH` | identical (106 tokens) | 86 | 0.0000 units |
+
+A side-by-side render of Figma node `26:2519` and the site's `.status__shape` shows the same construction.
+
+These two official paths are the only connected shapes in the site. There are 0 occurrences of `.gridlines`, `.neck`,
+`--neck-h`, `--neck-v`, CSS masks or `repeating-linear-gradient` in the HTML, CSS, JS and generator.
