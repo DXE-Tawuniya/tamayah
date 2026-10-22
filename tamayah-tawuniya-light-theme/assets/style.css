@@ -301,18 +301,19 @@ html.no-js .burger{display:none}
 .form__how{font-size:.875rem;max-width:60ch}
 .form__ok:not(:empty){padding:14px 18px;border-radius:12px;background:var(--tm-neon-30);font-weight:500}
 
-/* ---------- Footer ---------- */
-.footer{padding-block:clamp(48px,6vw,80px) 28px;border-block-start:1px solid var(--line)}
-.footer__top{display:grid;grid-template-columns:minmax(0,4fr) repeat(3,minmax(0,2fr));gap:clamp(28px,4vw,64px)}
-.footer__brand .brand__logo img{width:148px}
-.footer__reg{margin-block-start:20px;max-width:44ch;font-size:.9375rem}
-.footer__h{font-size:.8125rem;font-weight:500;text-transform:uppercase;color:var(--accent);margin-block-end:12px}
-:lang(ar) .footer__h{text-transform:none;font-size:.95rem}
-.footer li a{display:inline-flex;align-items:center;min-height:32px;padding-block:4px;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;transition:text-decoration-color var(--dur-micro) var(--tw-ease-state)}
-.footer li a:hover{text-decoration-color:currentColor}
-.pending-link{display:inline-block;padding-block:6px}
-.pending-link small{display:block;font-size:.8125rem}
-.footer__bot{margin-block-start:clamp(36px,5vw,64px);padding-block-start:20px;border-block-start:1px solid var(--line);font-size:.875rem}
+/* ---------- Footer (compact) ---------- */
+.footer{padding-block:clamp(32px,4vw,48px);border-block-start:1px solid var(--line)}
+.footer__in{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px clamp(24px,4vw,64px);align-items:start}
+.footer__logo .brand__logo img{width:120px}
+.footer__reg{font-size:.9375rem;max-width:72ch}
+.legal{grid-column:2;display:flex;flex-wrap:wrap;gap:6px 28px;font-size:.9375rem}
+.legal__pending{font-size:.8125rem}
+.footer__copy{grid-column:2;font-size:.875rem}
+
+/* Review mode: "pending approval" helpers only with ?review=1 or REVIEW_MODE */
+.review-only{display:none}
+[data-review] .review-only{display:inline}
+[data-review] .pending__tag.review-only{display:inline-block}
 
 /* ---------- Motion (opacity + transform only) ---------- */
 @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -339,8 +340,6 @@ html.no-js .burger{display:none}
   .vision{grid-template-columns:repeat(2,minmax(0,1fr))}
   .vision__main{grid-column:1/-1}
   .people{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .footer__top{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .footer__brand{grid-column:1/-1}
 }
 @media (max-width:899.98px){
   .aud__panel{grid-template-columns:minmax(0,1fr)}
@@ -367,10 +366,10 @@ html.no-js .burger{display:none}
   .form__grid{grid-template-columns:minmax(0,1fr)}
   .hero__actions .btn,.form__foot .btn{width:100%}
   .trust{grid-template-columns:minmax(0,1fr)}
-  .footer__top{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .footer__in{grid-template-columns:minmax(0,1fr)}
+  .legal,.footer__copy{grid-column:auto}
 }
 @media (max-width:479.98px){
   .people{grid-template-columns:minmax(0,1fr)}
-  .footer__top{grid-template-columns:minmax(0,1fr)}
   .lang a{min-width:40px;padding-inline:8px}
 }

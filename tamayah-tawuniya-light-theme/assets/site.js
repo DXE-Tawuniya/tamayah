@@ -8,6 +8,9 @@
   const $$ = (s, c = d) => [...c.querySelectorAll(s)];
   const header = $('.header');
 
+  /* Review mode (?review=1) reveals "pending approval" helper text */
+  if (new URLSearchParams(location.search).get('review') === '1') root.dataset.review = '';
+
   /* ---------- Active section: nav state + language switch keeps the section ---------- */
   let currentSection = '';
   const navLinks = $$('[data-nav-link]');

@@ -14,7 +14,9 @@ import os, re, sys, html, importlib.util
 sys.dont_write_bytecode = True  # never leave a __pycache__ inside the dark option's folder
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DARK_BUILD = os.path.join(ROOT, "..", "tamayah-dark-theme", "build.py")
-SITE_URL = "https://dxe-tawuniya.github.io/tamayah/tamayah-tawuniya-light-theme/"
+SITE_URL = "https://dxe-tawuniya.github.io/tamayah/tamayah-tawuniya-light-theme/"  # change at the production domain
+# Review mode shows "pending approval" helper text. It is also switched on per visit with ?review=1 (site.js).
+REVIEW_MODE = False
 
 _spec = importlib.util.spec_from_file_location("tamayah_dark_build", DARK_BUILD)
 dark = importlib.util.module_from_spec(_spec)
@@ -84,7 +86,8 @@ UI = {
   "e_summary": "Please correct {n} fields before sending.", "e_summary1": "Please correct 1 field before sending.",
   "ok": "Your email app should now open with your enquiry. If it doesn't, email us at info@tamayah.com.",
   "direct_h": "Or contact us directly",
-  "legal_h": "Legal", "legal": ["Privacy Policy", "Terms of Use", "Accessibility"], "legal_pending": "link pending approval",
+  "legal_h": "Legal", "legal": ["Privacy Policy", "Terms of Use", "Accessibility Statement"], "legal_pending": "link pending approval",
+  "about_lead": "Tamayah is a specialized provider of medical claims management and settlement solutions.",
   "mail_subject": "Enquiry from the Tamayah website",
   "mail_labels": {"name": "Name", "org": "Organization", "role": "I am a", "email": "Work email", "phone": "Phone", "msg": "Message"},
 },
@@ -135,7 +138,8 @@ UI = {
   "e_summary": "يرجى تصحيح {n} حقول قبل الإرسال.", "e_summary1": "يرجى تصحيح حقل واحد قبل الإرسال.",
   "ok": "يُفترض أن يُفتح تطبيق البريد الآن وفيه استفسارك. إن لم يُفتح، راسلنا على info@tamayah.com.",
   "direct_h": "أو تواصل معنا مباشرة",
-  "legal_h": "قانوني", "legal": ["سياسة الخصوصية", "شروط الاستخدام", "إمكانية الوصول"], "legal_pending": "الرابط بانتظار الاعتماد",
+  "legal_h": "قانوني", "legal": ["سياسة الخصوصية", "شروط الاستخدام", "بيان إمكانية الوصول"], "legal_pending": "الرابط بانتظار الاعتماد",
+  "about_lead": "تماية هي شركة متخصصة في تقديم حلول إدارة وتسوية المطالبات الطبية.",
   "mail_subject": "استفسار من موقع تماية",
   "mail_labels": {"name": "الاسم", "org": "الجهة", "role": "أنا", "email": "البريد الإلكتروني", "phone": "الهاتف", "msg": "الرسالة"},
 }}
@@ -163,6 +167,7 @@ def icon(name, cls="ico"):
       "people": '<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.1 2.9-5 5.5-5s4.9 1.9 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M16 14.2c2.4.2 4.1 1.9 4.5 4.8"/>',
       "cycle": '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 3v3.8h-3.8M6 21v-3.8h3.8"/>',
       "scale": '<path d="M12 4v16M7 20h10M5 8h14"/><path d="M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/>',
+      "at": '<circle cx="12" cy="12" r="3.6"/><path d="M15.6 12v1.4a2.6 2.6 0 0 0 5.2 0V12a8.8 8.8 0 1 0-3.5 7"/>',
       "mail": '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
       "phone": '<path d="M5 4h3.5l1.8 4.5-2.3 1.5a11 11 0 0 0 6 6l1.5-2.3L20 15.5V19a1.5 1.5 0 0 1-1.6 1.5A16 16 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/>',
     }[name]
@@ -274,7 +279,7 @@ def about(c):
                       for i, (t, d) in enumerate(u["pillars"]))
     return f'''<section class="section about" id="about" aria-labelledby="about-h"><div class="wrap">
   <div class="split">
-    {shead(a["eyebrow"], a["h1"], a["lede"], "about-h")}
+    {shead(a["eyebrow"], a["h1"], u["about_lead"], "about-h")}
     <div><h3 class="label rv">{u["pillars_h"]}</h3><ul class="pillars">{pillars}</ul></div>
   </div>
   <div class="vision rv">
@@ -440,7 +445,7 @@ def contact(c):
   </div>
   {field("msg", u["f_msg"], u, kind="textarea")}
   <div class="consent">
-    <p class="pending"><span class="pending__tag">{u["f_pending"]}</span> {u["f_privacy"]}</p>
+    <p class="pending"><span class="pending__tag review-only">{u["f_pending"]}</span> {u["f_privacy"]}</p>
     <div class="check"><input id="consent" name="consent" type="checkbox" required aria-required="true" aria-describedby="consent-err">
       <label for="consent">{u["f_consent"]}</label></div>
     <p class="field__err" id="consent-err" hidden></p>
@@ -458,6 +463,8 @@ def contact(c):
       <ul class="direct">
         <li>{icon("mail")}<span><span class="direct__l">{r["email"]}</span><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></span></li>
         <li>{icon("phone")}<span><span class="direct__l">{r["phone"]}</span><a class="ltr" href="tel:{PHONE}">{PHONE}</a></span></li>
+        <li>{icon("link")}<span><span class="direct__l">{r["linkedin"]}</span><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">{k["linkedin_text"]}</a></span></li>
+        <li>{icon("at")}<span><span class="direct__l">{r["x"]}</span><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">@{X_HANDLE}</a></span></li>
       </ul>
     </div>
     <div class="contact__form rv"><h3 class="h3">{u["form_h"]}</h3><p class="form__intro">{u["form_intro"]}</p>{form}</div>
@@ -466,21 +473,18 @@ def contact(c):
 
 
 def footer(c):
-    f, u, k = c["footer"], UI[c["lang"]], c["contact"]
-    nav = "".join(f'<li><a href="{href(p)}">{c["nav"][p]}</a></li>' for p, _ in NAV_ITEMS)
-    legal = "".join(f'<li><span class="pending-link">{t} <small>({u["legal_pending"]})</small></span></li>' for t in u["legal"])
-    return f'''<footer class="footer"><div class="wrap">
-  <div class="footer__top">
-    <div class="footer__brand"><a class="brand" href="#top">{logo("brand__logo").replace("{alt}", c["name"])}</a><p class="footer__reg">{f["reg"]}</p></div>
-    <nav aria-labelledby="f-explore"><h2 class="footer__h" id="f-explore">{f["explore"]}</h2><ul>{nav}</ul></nav>
-    <div><h2 class="footer__h">{f["contact"]}</h2><ul>
-      <li><a class="ltr" href="tel:{PHONE}">{PHONE}</a></li>
-      <li><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></li>
-      <li><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">LinkedIn · {k["linkedin_text"]}</a></li>
-      <li><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">X · @{X_HANDLE}</a></li></ul></div>
-    <div><h2 class="footer__h">{u["legal_h"]}</h2><ul class="legal">{legal}</ul></div>
-  </div>
-  <div class="footer__bot"><span>{f["rights"]}</span></div>
+    """Compact footer: logo, formal regulatory statement, legal items, copyright.
+
+    Legal destinations are not approved yet, so they render as plain text (not links). The
+    "pending approval" helper only appears in review mode (?review=1 or REVIEW_MODE).
+    """
+    f, u = c["footer"], UI[c["lang"]]
+    legal = "".join(f'<li><span>{t}</span><span class="review-only legal__pending"> ({u["legal_pending"]})</span></li>' for t in u["legal"])
+    return f'''<footer class="footer"><div class="wrap footer__in">
+  <a class="brand footer__logo" href="#top">{logo("brand__logo").replace("{alt}", c["name"])}</a>
+  <p class="footer__reg">{f["reg"]}</p>
+  <ul class="legal" aria-label="{u["legal_h"]}">{legal}</ul>
+  <p class="footer__copy">{f["rights"]}</p>
 </div></footer>'''
 
 
@@ -488,7 +492,7 @@ def render(lang):
     c = CONTENT[lang]
     body = hero(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
     page = f'''<!DOCTYPE html>
-<html lang="{lang}" dir="{c["dir"]}" class="no-js">
+<html lang="{lang}" dir="{c["dir"]}" class="no-js"{" data-review" if REVIEW_MODE else ""}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
