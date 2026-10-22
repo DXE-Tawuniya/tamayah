@@ -31,6 +31,7 @@
   --tm-warm-white:#F7F6F2;
 
   /* --- Layer 3: derived tokens (mixes of approved colours; pending official tints) --- */
+  --tm-teal-05:#EDEFEC;   /* teal 5 % on warm white: alternating section tint */
   --tm-teal-10:#E3E8E5;   /* teal 10 % on warm white */
   --tm-teal-20:#D0DAD8;   /* teal 20 % on warm white */
   --tm-neon-30:#D9F3E4;   /* neon 25 % on warm white */
@@ -150,17 +151,24 @@ html.no-js .burger{display:none}
 .hero__media img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
 
 /* Trust strip — the only place (with the footer) that carries the formal regulatory statement */
-.trust{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:clamp(20px,3.5vw,56px);align-items:center;margin-block-start:clamp(36px,4vw,56px);padding-block-start:clamp(24px,3vw,32px);border-block-start:1px solid var(--line)}
-.stat{display:flex;align-items:flex-start;direction:ltr;font-variant-numeric:tabular-nums}
-.stat__n{font-size:clamp(2.6rem,1.8rem + 2.4vw,3.75rem);line-height:1}
-.stat__u{font-size:clamp(1rem,.8rem + .8vw,1.375rem);line-height:1;margin-inline-start:2px}
-.trust__stat{display:grid;gap:4px}
-.stat__l{font-size:.875rem}
+.trust{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,3.5vw,56px);align-items:center;margin-block-start:clamp(36px,4vw,56px);padding-block-start:clamp(24px,3vw,32px);border-block-start:1px solid var(--line)}
 .trust__list{display:grid;gap:10px}
 .trust__item{display:flex;align-items:center;gap:10px;font-size:.9375rem}
 .trust__item .ico{color:var(--accent)}
 .trust__item b{font-weight:500}
 .trust__reg{font-size:.9375rem;max-width:56ch;padding-inline-start:clamp(0px,2vw,32px);border-inline-start:1px solid var(--line)}
+
+/* ---------- Alternating rhythm + stat band ---------- */
+.section--tint{background:var(--tm-teal-05)}
+.section--tint .seg{border-color:var(--tm-teal)}          /* Smart Gray is 2.83:1 on the tint; Teal is 5.21:1 */
+.section--tint .care__shared{background:var(--tw-surface-raised)}
+.statband{padding-block:clamp(40px,5vw,72px)}
+.statband__in{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px clamp(20px,3vw,40px)}
+.statband__fig{direction:ltr;font-variant-numeric:tabular-nums;line-height:.9}
+.statband__fig > [aria-hidden]{display:flex;align-items:flex-start}  /* unit top-aligned, as the guideline "86%" numeral */
+.statband__n{font-size:clamp(4.5rem,2.8rem + 6.5vw,8.5rem);font-weight:400}
+.statband__u{font-size:clamp(1.6rem,1.1rem + 2vw,2.8rem);margin-inline-start:4px;color:var(--accent)}
+.statband__l{max-width:24ch;padding-block-end:clamp(8px,1.4vw,18px);font-size:clamp(1.0625rem,1rem + .4vw,1.375rem)}
 
 /* ---------- About ---------- */
 .split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,112px);align-items:start}
@@ -344,8 +352,8 @@ html.no-js .burger{display:none}
 }
 @media (max-width:1023.98px){
   .hero__grid,.split,.contact__grid{grid-template-columns:minmax(0,1fr)}
-  .trust{grid-template-columns:auto minmax(0,1fr)}
-  .trust__reg{grid-column:1/-1;padding-inline-start:0;border-inline-start:0}
+  .trust{grid-template-columns:minmax(0,1fr)}
+  .trust__reg{padding-inline-start:0;border-inline-start:0}
   .vision{grid-template-columns:repeat(2,minmax(0,1fr))}
   .vision__main{grid-column:1/-1}
   .people{grid-template-columns:repeat(2,minmax(0,1fr))}

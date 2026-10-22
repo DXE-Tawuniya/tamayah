@@ -276,12 +276,21 @@ def hero(c):
     </div>
     <div class="trust fade-up" style="--d:5">
       <h2 class="sr-only">{u["trust_h"]}</h2>
-      <div class="trust__stat"><span class="stat"><span class="stat__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="stat__u">+</span></span><span class="stat__l">{r["count_label"]}</span></div>
       <ul class="trust__list">{trust}</ul>
       <p class="trust__reg">{r["text"]}</p>
     </div>
   </div>
 </section>'''
+
+
+def statband(c):
+    """Quiet stat band. The final value is always in the DOM (sr-only); the visible numeral counts up
+    once, only when motion is allowed (site.js)."""
+    r = c["reg"]
+    return f'''<section class="statband section--tint" aria-label="{r["count_label"]}"><div class="wrap statband__in">
+  <p class="statband__fig rv"><span class="sr-only">{r["count"]:,}+ {r["count_label"]}</span><span aria-hidden="true"><span class="statband__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="statband__u">+</span></span></p>
+  <p class="statband__l rv" style="--d:1" aria-hidden="true">{r["count_label"]}</p>
+</div></section>'''
 
 
 def about(c):
@@ -314,7 +323,7 @@ def audiences(c):
     <a class="btn" href="#partner" data-audience="{key}">{u["aud_cta"][key]}{icon("arrow")}</a></div>
   <div class="aud__svc"><h4 class="label">{u["aud_services"]}</h4><ul class="svc-list">{items}</ul></div>
 </div>'''
-    return f'''<section class="section aud" id="audiences" aria-labelledby="aud-h"><div class="wrap">
+    return f'''<section class="section section--tint aud" id="audiences" aria-labelledby="aud-h"><div class="wrap">
   {shead(a["eyebrow"], a["h2"], a["lede"], "aud-h")}
   <div class="aud__x rv" data-tabs data-hash="audience-">
     <div class="seg seg--scroll" role="tablist" aria-label="{u["aud_tabs"]}">{tabs}</div>
@@ -385,7 +394,7 @@ def suite(c):
         plans += f'''<div class="plan plan--{k}" id="plan-{k}" role="tabpanel" aria-labelledby="plan-tab-{k}">
   <h3 class="h3">{d["t"]}</h3><p>{d["intro"]}</p><p class="plan__hours">{d["hours"]}</p>
   <h4 class="label">{u["care_distinct"]}</h4><ul class="perks">{own_html}</ul></div>'''
-    return f'''<section class="section suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
+    return f'''<section class="section section--tint suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
   {shead(s["eyebrow"], s["h2"], s["lede"], "suite-h")}
   <div class="care-layout">
   <figure class="care__media rv">{photo("care", 1280, 853, u["care_alt"], "(min-width:1180px) 36vw, 92vw", eager=False)}</figure>
@@ -420,7 +429,7 @@ def leadership(c):
             cards += f'''<li class="person rv" style="--d:{i}"><span class="person__mono" aria-hidden="true">{monogram(n, c["lang"])}</span>
   <h3 class="person__name">{n}</h3><p class="person__role">{role}</p></li>'''
             i += 1
-    return f'''<section class="section lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
+    return f'''<section class="section section--tint lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
   {shead(l["eyebrow"], l["h2"], "", "lead-h")}
   <ul class="people">{cards}</ul>
 </div></section>'''
@@ -504,7 +513,7 @@ def footer(c):
 
 def render(lang):
     c = CONTENT[lang]
-    body = hero(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
+    body = hero(c) + statband(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
     page = f'''<!DOCTYPE html>
 <html lang="{lang}" dir="{c["dir"]}" class="no-js"{" data-review" if REVIEW_MODE else ""}>
 <head>
