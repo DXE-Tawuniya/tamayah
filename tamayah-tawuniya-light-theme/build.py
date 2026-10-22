@@ -42,6 +42,7 @@ UI = {
 "en": {
   "trust_h": "Regulatory standing",
   "hero_alt": "A healthcare professional in a white coat in conversation with a man across a desk",
+  "care_alt": "A doctor holding an older woman's hands during a consultation",
   "pillars_h": "What we bring together",
   "pillars": [
     ("Advanced technology", "Intelligent digital solutions that simplify and streamline the medical claims lifecycle."),
@@ -94,6 +95,7 @@ UI = {
 "ar": {
   "trust_h": "الوضع التنظيمي",
   "hero_alt": "أخصائية رعاية صحية بمعطف أبيض تتحدث مع رجل على مكتب",
+  "care_alt": "طبيبة تمسك بيدي امرأة مسنّة أثناء استشارة",
   "pillars_h": "ما نجمع بينه",
   "pillars": [
     ("التقنيات المتقدمة", "حلول رقمية ذكية تبسّط دورة المطالبات الطبية وتديرها بكفاءة أعلى."),
@@ -199,6 +201,16 @@ def logo(cls, eager=False):
     load = 'fetchpriority="high"' if eager else 'loading="lazy"'
     return (f'<picture class="{cls}"><source type="image/webp" srcset="../assets/logo-320.webp 320w, ../assets/logo-640.webp 640w" sizes="160px">'
             f'<img src="../assets/logo-320.png" srcset="../assets/logo-320.png 320w, ../assets/logo-640.png 640w" sizes="160px" width="320" height="105" alt="{{alt}}" {load}></picture>')
+
+
+def photo(name, w, h, alt, sizes, eager):
+    """<picture> with WebP + JPEG fallback from assets/img/{name}-{640,960,1280}; explicit size."""
+    ws = (640, 960, 1280)
+    webp = ", ".join(f"../assets/img/{name}-{x}.webp {x}w" for x in ws)
+    jpg = ", ".join(f"../assets/img/{name}-{x}.jpg {x}w" for x in ws)
+    load = 'decoding="async"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
+            f'<img src="../assets/img/{name}-960.jpg" srcset="{jpg}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}" {load}></picture>')
 
 
 def services(c):
@@ -375,10 +387,13 @@ def suite(c):
   <h4 class="label">{u["care_distinct"]}</h4><ul class="perks">{own_html}</ul></div>'''
     return f'''<section class="section suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
   {shead(s["eyebrow"], s["h2"], s["lede"], "suite-h")}
+  <div class="care-layout">
+  <figure class="care__media rv">{photo("care", 1280, 853, u["care_alt"], "(min-width:1180px) 36vw, 92vw", eager=False)}</figure>
   <div class="care rv" data-tabs data-mobile-only>
     <div class="seg care__seg" role="tablist" aria-label="{u["care_plans"]}">{tabs}</div>
     <div class="care__plans">{plans}</div>
     <div class="care__shared"><h3 class="label">{u["care_shared"]}</h3><ul class="perks perks--shared">{shared_html}</ul></div>
+  </div>
   </div>
 </div></section>'''
 

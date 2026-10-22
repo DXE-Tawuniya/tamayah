@@ -236,6 +236,10 @@ html.no-js .burger{display:none}
 .svc:target{outline:2px solid var(--tm-teal);outline-offset:2px}
 
 /* ---------- Care-service comparison ---------- */
+.care-layout{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,3vw,40px);align-items:start}
+/* Same plain rounded-rectangle treatment as the hero photo */
+.care__media{position:sticky;inset-block-start:calc(var(--header-h) + 24px);min-width:0;border-radius:var(--radius-box);overflow:hidden;background:var(--tm-teal-10)}
+.care__media img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:50% 40%}
 .care{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 .care__seg{display:none}
 .care__plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -333,6 +337,11 @@ html.no-js .burger{display:none}
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width:1179.98px){
+  .care-layout{grid-template-columns:minmax(0,1fr)}
+  .care__media{position:static}
+  .care__media img{aspect-ratio:3/2}
+}
 @media (max-width:1023.98px){
   .hero__grid,.split,.contact__grid{grid-template-columns:minmax(0,1fr)}
   .trust{grid-template-columns:auto minmax(0,1fr)}
