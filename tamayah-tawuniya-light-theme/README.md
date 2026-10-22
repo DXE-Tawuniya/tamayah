@@ -29,10 +29,13 @@ The site is static and needs no build tools to view.
   It uses logical properties only, so Arabic RTL works without extra rules.
 - `assets/site.js` is vanilla progressive enhancement (about 10 KB, no libraries). Without it every panel is visible and
   the form posts via `mailto:`.
-- Fonts: the Tawuniya typeface (400/500/700, WOFF2). Only the 400 weight is preloaded.
-- Hero photo: `assets/img/hero-{640,960,1280}.{webp,jpg}`, recovered from git history (`94ee53f`, the derivative
-  of `tamayah-light-theme/assets/img/consult-desk.jpg`). It loads eagerly with explicit width and height. The frame is a
-  plain rounded rectangle at the card radius, because the Tawuniya photo frame can't be extracted from Figma.
+- Fonts: the Tawuniya typeface (400/500/700) served as per-script WOFF2 subsets (`tawuniya-{w}-{latin,arabic}`),
+  generated with fontTools with all layout features kept, so Arabic shaping works. They are served by
+  `unicode-range`: the EN page fetches Latin only. Each page preloads only the 400 subset its hero text needs.
+- Photos: `assets/img/{hero,care}-{480,640,960,1280}.{avif,webp,jpg}`. Both are recovered from git history (`94ee53f`,
+  originally `tamayah-light-theme/assets/img/consult-desk.jpg` and `care-understood.jpg`), with metadata stripped. The
+  hero is eager (`fetchpriority="low"`, so the LCP text wins); the care photo is lazy. Both use a plain rounded
+  rectangle at the card radius, because the Tawuniya photo frame can't be extracted from Figma.
 - Logo: `logo-320/640.{webp,png}` are resized renditions of `Tamayah_Logo_POS.png`. They are never recoloured, and the
   aspect ratio is preserved.
 
@@ -61,27 +64,48 @@ connectors anywhere. In RTL the badge is mirrored with `scaleX(-1)`, which is a 
 `info@tamayah.com`. The page says this before submission. No data leaves the browser until the visitor presses Send in
 their mail client. To use a real endpoint, change the form's `action` and replace the `mailto` branch in `site.js`.
 
-## Validation results (2026-10-22)
+## Motion
+
+Everything animates transform or opacity only. `prefers-reduced-motion` turns all of it off and shows final states.
+
+| What | Where |
+|---|---|
+| Hero sequence: headline lines, then copy, CTAs, image and trust strip (16 px, 600 ms, 70 ms steps) | `style.css` `.js .h1 .line > span`, `.js .fade-up`, `--d` / `--i` |
+| One-time section reveals (16 px, 600 ms, 70 ms stagger) | `style.css` `.js .rv` / `.rv.in`; `site.js` IntersectionObserver |
+| Panel change: fade + 8 px settle, 280 ms (audience tabs, journey, care comparison) | `style.css` `@keyframes panel` |
+| Journey progress rail | `style.css` `.jx__fill` (`scaleX` / `scaleY`) |
+| Press feedback (scale .97) and the selected journey stage (scale 1.08) | `style.css` `.btn:active` … `.jx__tab[aria-selected=true] .jx__dot` |
+| Header condenses after 120 px of scroll (moves up 10 px, logo at 86%); never while the menu is open | `style.css` `.header.is-condensed`; `site.js` `onScroll` |
+| Mobile menu open/close | `style.css` `.drawer` |
+| 1,700+ counts up once (motion allowed only); the final value is always in the DOM | `site.js` `[data-count]` |
+| Button arrow nudge on hover | `style.css` `.btn:hover .ico` |
+
+Colour, background and border changes on hover or selection are instant, because they aren't transforms.
+
+Not added:
+- Image parallax: optional in the brief and not needed for meaning.
+- Scroll-linked path drawing: it would need scroll-driven animation of the journey rail for decoration only.
+- Looping motion of any kind.
+
+## Validation results (2026-10-22, second round)
 
 | Check | Result |
 |---|---|
 | axe-core 4.10.2 (WCAG 2.0/2.1/2.2 A+AA + best practices), EN and AR at 1440 / 834 / 390 px | **0 violations** on all 6 |
-| Behaviour suite (Playwright): keyboard, RTL arrows, deep links, form, no-JS, reduced motion, target size ≥24 px, heading order, sticky CTA, language switch | **60 / 60 pass** |
-| Keyboard suite: Tab/Shift+Tab menu trap, inert background, Escape, keyboard language switch, focus ring | **14 / 14 pass** |
-| Layout and content suite: 12 widths (320 → 1440) × EN/AR, no h-scroll, overflow, clipped text or hero overlap; badge text fit; anchors below the fixed header; regulatory statement ×2; footer; review mode; head metadata | **84 / 84 pass** |
-| html-validate 9.4.1 (recommended; inline-style rule off for the `--d` stagger variables) | 0 problems |
-| ESLint 10.1.0 | Clean |
-| Smart Gray / Neon / Nature Green used as a text colour | 0 rules |
+| Behaviour suite (keyboard, RTL arrows, deep links, form, no-JS, reduced motion, 24 px targets, headings, sticky CTA, language switch) | **60 / 60** |
+| Keyboard suite (menu trap Tab/Shift+Tab, inert background, Escape, keyboard language switch, focus ring) | **14 / 14** |
+| Layout and content suite: 12 widths (320 → 1440) × EN/AR, no h-scroll, overflow or clipping; anchors below the fixed header; review markers on/off and in the accessibility tree; legal items with no tab stop; photo attributes; stat value in the DOM; zero third-party hosts | **98 / 98** |
+| html-validate 9.4.1 / ESLint 10.1.0 | 0 problems / clean |
 
 Lighthouse 12.8.2, run on a local http-server with headless Chromium:
 
 | | Performance | Accessibility | Best Practices | SEO | LCP | CLS |
 |---|---|---|---|---|---|---|
-| Original build, mobile EN | 82 | 100 | 100 | 91 | 4.2 s | 0 |
-| Mobile EN, 3 runs | 91 / 91 / 99 | 100 | 100 | 100 | 2.3–3.2 s | 0 |
-| Mobile AR, 3 runs | 91 / 91 / 91 | 100 | 100 | 100 | 3.2 s | 0 |
-| Desktop EN, 2 runs | 100 | 100 | 100 | 100 | 0.6–0.7 s | 0 |
-| Desktop AR, 2 runs | 100 | 100 | 100 | 100 | 0.6 s | ≤ 0.006 |
+| Mobile EN, before this round (3 runs) | 89 / 91 / 89 | 100 | 100 | 100 | 3.3 / 3.2 / 3.3 s | 0 |
+| Mobile AR, before this round (3 runs) | 91 / 90 / 91 | 100 | 100 | 100 | 3.2 / 3.2 / 3.2 s | 0 |
+| **Mobile EN, after (3 runs)** | 98 / 98 / 99 | 100 | 100 | 100 | **2.2 / 2.2 / 2.1 s** | 0 |
+| **Mobile AR, after (3 runs)** | 100 / 97 / 96 | 100 | 100 | 100 | **1.6 / 2.4 / 2.5 s** | 0 |
+| Desktop EN / AR (2 runs each) | 100 | 100 | 100 | 100 | 0.5 s | 0 |
 
 **Text contrast:**
 
@@ -90,6 +114,8 @@ Lighthouse 12.8.2, run on a local http-server with headless Chromium:
 | Dark Blue on Warm White | 15.35 |
 | Teal on Warm White | 5.57 |
 | Teal on teal-10 tint | 4.86 |
+| Dark Blue on teal-5 section tint | 14.36 |
+| Teal on teal-5 section tint | 5.21 |
 | White on Teal | 6.02 |
 | Dark Blue on Neon | 11.38 |
 | Warm White on Dark Blue | 15.35 |
@@ -99,7 +125,8 @@ Lighthouse 12.8.2, run on a local http-server with headless Chromium:
 | Element | Ratio |
 |---|---|
 | Field border (Smart Gray on white) | 3.27 |
-| Segmented-control border | 3.03 |
+| Segmented-control border on Warm White (Smart Gray) | 3.03 |
+| Segmented-control border on teal-5 tint (Teal) | 5.21 |
 | Focus ring | ≥ 15.35 |
 
 Smart Gray, Nature Green and Neon fail as text colours on light backgrounds, so they are never used for text.

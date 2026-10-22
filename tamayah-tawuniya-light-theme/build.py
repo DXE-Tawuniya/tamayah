@@ -42,11 +42,12 @@ UI = {
 "en": {
   "trust_h": "Regulatory standing",
   "hero_alt": "A healthcare professional in a white coat in conversation with a man across a desk",
+  "care_alt": "A doctor holding an older woman's hands during a consultation",
   "pillars_h": "What we bring together",
   "pillars": [
     ("Advanced technology", "Intelligent digital solutions that simplify and streamline the medical claims lifecycle."),
     ("Specialized expertise", "Experienced operational teams that help partners optimize claims operations and service quality."),
-    ("End-to-end lifecycle", "From medical authorizations and claims processing to settlement and financial reconciliation."),
+    ("Close partnership", "We work closely with our partners to understand their operational needs and deliver solutions that support their objectives."),
     ("Compliance", "Maintaining compliance with applicable regulatory and professional standards.")],
   "aud_tabs": "Choose your organization type",
   "aud_services": "Relevant Tamayah services",
@@ -87,18 +88,19 @@ UI = {
   "ok": "Your email app should now open with your enquiry. If it doesn't, email us at info@tamayah.com.",
   "direct_h": "Or contact us directly",
   "legal_h": "Legal", "legal": ["Privacy Policy", "Terms of Use", "Accessibility Statement"], "legal_pending": "link pending approval",
-  "about_lead": "Tamayah is a specialized provider of medical claims management and settlement solutions.",
+  "about_lead": "From medical authorization management and claims processing to settlement and financial reconciliation, our solutions are designed to deliver greater efficiency, accuracy, transparency and speed.",
   "mail_subject": "Enquiry from the Tamayah website",
   "mail_labels": {"name": "Name", "org": "Organization", "role": "I am a", "email": "Work email", "phone": "Phone", "msg": "Message"},
 },
 "ar": {
   "trust_h": "الوضع التنظيمي",
   "hero_alt": "أخصائية رعاية صحية بمعطف أبيض تتحدث مع رجل على مكتب",
+  "care_alt": "طبيبة تمسك بيدي امرأة مسنّة أثناء استشارة",
   "pillars_h": "ما نجمع بينه",
   "pillars": [
     ("التقنيات المتقدمة", "حلول رقمية ذكية تبسّط دورة المطالبات الطبية وتديرها بكفاءة أعلى."),
     ("الخبرات المتخصصة", "فرق تشغيلية ذات خبرة تساعد على تحسين عمليات إدارة المطالبات والارتقاء بجودة الخدمات."),
-    ("دورة متكاملة", "من إدارة الموافقات الطبية ومعالجة المطالبات إلى التسويات المالية والمطابقة."),
+    ("شراكة وثيقة", "نعمل بشكل وثيق مع شركائنا لفهم احتياجاتهم التشغيلية وتقديم حلول تدعم أهدافهم."),
     ("الالتزام", "ضمان الالتزام بالمعايير التنظيمية والمهنية المعمول بها.")],
   "aud_tabs": "اختر نوع جهتك",
   "aud_services": "خدمات تماية ذات الصلة",
@@ -139,7 +141,7 @@ UI = {
   "ok": "يُفترض أن يُفتح تطبيق البريد الآن وفيه استفسارك. إن لم يُفتح، راسلنا على info@tamayah.com.",
   "direct_h": "أو تواصل معنا مباشرة",
   "legal_h": "قانوني", "legal": ["سياسة الخصوصية", "شروط الاستخدام", "بيان إمكانية الوصول"], "legal_pending": "الرابط بانتظار الاعتماد",
-  "about_lead": "تماية هي شركة متخصصة في تقديم حلول إدارة وتسوية المطالبات الطبية.",
+  "about_lead": "تشمل حلولنا إدارة الموافقات الطبية، ومعالجة المطالبات، والتسويات المالية، والمطابقة والتسوية المحاسبية، بما يسهم في تعزيز الكفاءة والدقة والشفافية وسرعة الإنجاز.",
   "mail_subject": "استفسار من موقع تماية",
   "mail_labels": {"name": "الاسم", "org": "الجهة", "role": "أنا", "email": "البريد الإلكتروني", "phone": "الهاتف", "msg": "الرسالة"},
 }}
@@ -201,6 +203,17 @@ def logo(cls, eager=False):
             f'<img src="../assets/logo-320.png" srcset="../assets/logo-320.png 320w, ../assets/logo-640.png 640w" sizes="160px" width="320" height="105" alt="{{alt}}" {load}></picture>')
 
 
+def photo(name, w, h, alt, sizes, eager):
+    """<picture>: AVIF, then WebP, then JPEG fallback from assets/img/{name}-{480,640,960,1280}; explicit size."""
+    ws = (480, 640, 960, 1280)
+    src = lambda ext: ", ".join(f"../assets/img/{name}-{x}.{ext} {x}w" for x in ws)
+    # eager = no loading attribute; low fetch priority so CSS + font for the LCP text (the lede) go first
+    load = 'fetchpriority="low" decoding="async"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<picture><source type="image/avif" srcset="{src("avif")}" sizes="{sizes}">'
+            f'<source type="image/webp" srcset="{src("webp")}" sizes="{sizes}">'
+            f'<img src="../assets/img/{name}-960.jpg" srcset="{src("jpg")}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}" {load}></picture>')
+
+
 def services(c):
     e, s = c["eco"], c["suite"]
     return {"auth": e["core"][0][0], "claims": e["core"][1][0], "settle": e["core"][2][0],
@@ -245,31 +258,38 @@ def hero(c):
     lines = "".join(f'<span class="line"><span style="--i:{i}">{t}</span></span>' for i, t in enumerate(h["lines"]))
     chips = [("shield", h["meta"][0]), ("link", h["meta"][1])]
     trust = "".join(f'<li class="trust__item">{icon(ic)}<span>{t}</span></li>' for ic, t in chips)
-    img = ('<picture><source type="image/webp" srcset="../assets/img/hero-640.webp 640w, ../assets/img/hero-960.webp 960w, ../assets/img/hero-1280.webp 1280w" sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw">'
-           '<img src="../assets/img/hero-960.jpg" srcset="../assets/img/hero-640.jpg 640w, ../assets/img/hero-960.jpg 960w, ../assets/img/hero-1280.jpg 1280w" '
-           f'sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw" width="1280" height="960" alt="{u["hero_alt"]}" decoding="async"></picture>')
+    img = photo("hero", 1280, 960, u["hero_alt"], "(min-width:1024px) 36vw, calc(100vw - 40px)", eager=True)
     return f'''<section class="hero" id="top" aria-labelledby="hero-h">
   <div class="wrap">
     <div class="hero__grid">
       <div class="hero__copy">
         <p class="eyebrow fade-up">{h["eyebrow"]}</p>
         <h1 class="h1" id="hero-h">{lines}</h1>
-        <p class="lede fade-up" style="--d:2">{h["lede"]}</p>
-        <div class="hero__actions fade-up" style="--d:3">
+        <p class="lede fade-up" style="--d:3">{h["lede"]}</p>
+        <div class="hero__actions fade-up" style="--d:4">
           <a class="btn" href="#partner">{h["primary"]}{icon("arrow")}</a>
           <a class="btn btn--ghost" href="#services">{h["secondary"]}</a>
         </div>
       </div>
-      <figure class="hero__media fade-up" style="--d:4">{img}</figure>
+      <figure class="hero__media fade-up" style="--d:5">{img}</figure>
     </div>
-    <div class="trust fade-up" style="--d:5">
+    <div class="trust fade-up" style="--d:6">
       <h2 class="sr-only">{u["trust_h"]}</h2>
-      <div class="trust__stat"><span class="stat"><span class="stat__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="stat__u">+</span></span><span class="stat__l">{r["count_label"]}</span></div>
       <ul class="trust__list">{trust}</ul>
       <p class="trust__reg">{r["text"]}</p>
     </div>
   </div>
 </section>'''
+
+
+def statband(c):
+    """Quiet stat band. The final value is always in the DOM (sr-only); the visible numeral counts up
+    once, only when motion is allowed (site.js)."""
+    r = c["reg"]
+    return f'''<section class="statband section--tint" aria-label="{r["count_label"]}"><div class="wrap statband__in">
+  <p class="statband__fig rv"><span class="sr-only">{r["count"]:,}+ {r["count_label"]}</span><span aria-hidden="true"><span class="statband__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="statband__u">+</span></span></p>
+  <p class="statband__l rv" style="--d:1" aria-hidden="true">{r["count_label"]}</p>
+</div></section>'''
 
 
 def about(c):
@@ -302,7 +322,7 @@ def audiences(c):
     <a class="btn" href="#partner" data-audience="{key}">{u["aud_cta"][key]}{icon("arrow")}</a></div>
   <div class="aud__svc"><h4 class="label">{u["aud_services"]}</h4><ul class="svc-list">{items}</ul></div>
 </div>'''
-    return f'''<section class="section aud" id="audiences" aria-labelledby="aud-h"><div class="wrap">
+    return f'''<section class="section section--tint aud" id="audiences" aria-labelledby="aud-h"><div class="wrap">
   {shead(a["eyebrow"], a["h2"], a["lede"], "aud-h")}
   <div class="aud__x rv" data-tabs data-hash="audience-">
     <div class="seg seg--scroll" role="tablist" aria-label="{u["aud_tabs"]}">{tabs}</div>
@@ -373,12 +393,15 @@ def suite(c):
         plans += f'''<div class="plan plan--{k}" id="plan-{k}" role="tabpanel" aria-labelledby="plan-tab-{k}">
   <h3 class="h3">{d["t"]}</h3><p>{d["intro"]}</p><p class="plan__hours">{d["hours"]}</p>
   <h4 class="label">{u["care_distinct"]}</h4><ul class="perks">{own_html}</ul></div>'''
-    return f'''<section class="section suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
+    return f'''<section class="section section--tint suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
   {shead(s["eyebrow"], s["h2"], s["lede"], "suite-h")}
+  <div class="care-layout">
+  <figure class="care__media rv">{photo("care", 1280, 853, u["care_alt"], "(min-width:1180px) 36vw, calc(100vw - 40px)", eager=False)}</figure>
   <div class="care rv" data-tabs data-mobile-only>
     <div class="seg care__seg" role="tablist" aria-label="{u["care_plans"]}">{tabs}</div>
     <div class="care__plans">{plans}</div>
     <div class="care__shared"><h3 class="label">{u["care_shared"]}</h3><ul class="perks perks--shared">{shared_html}</ul></div>
+  </div>
   </div>
 </div></section>'''
 
@@ -405,7 +428,7 @@ def leadership(c):
             cards += f'''<li class="person rv" style="--d:{i}"><span class="person__mono" aria-hidden="true">{monogram(n, c["lang"])}</span>
   <h3 class="person__name">{n}</h3><p class="person__role">{role}</p></li>'''
             i += 1
-    return f'''<section class="section lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
+    return f'''<section class="section section--tint lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
   {shead(l["eyebrow"], l["h2"], "", "lead-h")}
   <ul class="people">{cards}</ul>
 </div></section>'''
@@ -463,7 +486,6 @@ def contact(c):
       <ul class="direct">
         <li>{icon("mail")}<span><span class="direct__l">{r["email"]}</span><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></span></li>
         <li>{icon("phone")}<span><span class="direct__l">{r["phone"]}</span><a class="ltr" href="tel:{PHONE}">{PHONE}</a></span></li>
-        <li>{icon("link")}<span><span class="direct__l">{r["linkedin"]}</span><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">{k["linkedin_text"]}</a></span></li>
         <li>{icon("at")}<span><span class="direct__l">{r["x"]}</span><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">@{X_HANDLE}</a></span></li>
       </ul>
     </div>
@@ -490,7 +512,7 @@ def footer(c):
 
 def render(lang):
     c = CONTENT[lang]
-    body = hero(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
+    body = hero(c) + statband(c) + about(c) + audiences(c) + eco(c) + suite(c) + why(c) + leadership(c) + contact(c)
     page = f'''<!DOCTYPE html>
 <html lang="{lang}" dir="{c["dir"]}" class="no-js"{" data-review" if REVIEW_MODE else ""}>
 <head>
@@ -514,7 +536,7 @@ def render(lang):
 <meta name="twitter:title" content="{html.escape(c["titles"]["index"])}">
 <meta name="twitter:description" content="{html.escape(c["desc"])}">
 <link rel="icon" type="image/png" href="../assets/mark.png">
-<link rel="preload" href="../assets/fonts/tawuniya-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/tawuniya-400-{"arabic" if lang == "ar" else "latin"}.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/style.css">
 <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
