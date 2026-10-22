@@ -46,7 +46,7 @@ UI = {
   "pillars": [
     ("Advanced technology", "Intelligent digital solutions that simplify and streamline the medical claims lifecycle."),
     ("Specialized expertise", "Experienced operational teams that help partners optimize claims operations and service quality."),
-    ("End-to-end lifecycle", "From medical authorizations and claims processing to settlement and financial reconciliation."),
+    ("Close partnership", "We work closely with our partners to understand their operational needs and deliver solutions that support their objectives."),
     ("Compliance", "Maintaining compliance with applicable regulatory and professional standards.")],
   "aud_tabs": "Choose your organization type",
   "aud_services": "Relevant Tamayah services",
@@ -87,7 +87,7 @@ UI = {
   "ok": "Your email app should now open with your enquiry. If it doesn't, email us at info@tamayah.com.",
   "direct_h": "Or contact us directly",
   "legal_h": "Legal", "legal": ["Privacy Policy", "Terms of Use", "Accessibility Statement"], "legal_pending": "link pending approval",
-  "about_lead": "Tamayah is a specialized provider of medical claims management and settlement solutions.",
+  "about_lead": "From medical authorization management and claims processing to settlement and financial reconciliation, our solutions are designed to deliver greater efficiency, accuracy, transparency and speed.",
   "mail_subject": "Enquiry from the Tamayah website",
   "mail_labels": {"name": "Name", "org": "Organization", "role": "I am a", "email": "Work email", "phone": "Phone", "msg": "Message"},
 },
@@ -98,7 +98,7 @@ UI = {
   "pillars": [
     ("التقنيات المتقدمة", "حلول رقمية ذكية تبسّط دورة المطالبات الطبية وتديرها بكفاءة أعلى."),
     ("الخبرات المتخصصة", "فرق تشغيلية ذات خبرة تساعد على تحسين عمليات إدارة المطالبات والارتقاء بجودة الخدمات."),
-    ("دورة متكاملة", "من إدارة الموافقات الطبية ومعالجة المطالبات إلى التسويات المالية والمطابقة."),
+    ("شراكة وثيقة", "نعمل بشكل وثيق مع شركائنا لفهم احتياجاتهم التشغيلية وتقديم حلول تدعم أهدافهم."),
     ("الالتزام", "ضمان الالتزام بالمعايير التنظيمية والمهنية المعمول بها.")],
   "aud_tabs": "اختر نوع جهتك",
   "aud_services": "خدمات تماية ذات الصلة",
@@ -139,7 +139,7 @@ UI = {
   "ok": "يُفترض أن يُفتح تطبيق البريد الآن وفيه استفسارك. إن لم يُفتح، راسلنا على info@tamayah.com.",
   "direct_h": "أو تواصل معنا مباشرة",
   "legal_h": "قانوني", "legal": ["سياسة الخصوصية", "شروط الاستخدام", "بيان إمكانية الوصول"], "legal_pending": "الرابط بانتظار الاعتماد",
-  "about_lead": "تماية هي شركة متخصصة في تقديم حلول إدارة وتسوية المطالبات الطبية.",
+  "about_lead": "تشمل حلولنا إدارة الموافقات الطبية، ومعالجة المطالبات، والتسويات المالية، والمطابقة والتسوية المحاسبية، بما يسهم في تعزيز الكفاءة والدقة والشفافية وسرعة الإنجاز.",
   "mail_subject": "استفسار من موقع تماية",
   "mail_labels": {"name": "الاسم", "org": "الجهة", "role": "أنا", "email": "البريد الإلكتروني", "phone": "الهاتف", "msg": "الرسالة"},
 }}
@@ -463,7 +463,6 @@ def contact(c):
       <ul class="direct">
         <li>{icon("mail")}<span><span class="direct__l">{r["email"]}</span><a class="ltr" href="mailto:{EMAIL}">{EMAIL}</a></span></li>
         <li>{icon("phone")}<span><span class="direct__l">{r["phone"]}</span><a class="ltr" href="tel:{PHONE}">{PHONE}</a></span></li>
-        <li>{icon("link")}<span><span class="direct__l">{r["linkedin"]}</span><a class="ltr" href="{LINKEDIN_URL}" target="_blank" rel="noopener">{k["linkedin_text"]}</a></span></li>
         <li>{icon("at")}<span><span class="direct__l">{r["x"]}</span><a class="ltr" href="https://x.com/{X_HANDLE}" target="_blank" rel="noopener">@{X_HANDLE}</a></span></li>
       </ul>
     </div>
