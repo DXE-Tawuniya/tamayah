@@ -25,19 +25,7 @@ EMAIL, PHONE, X_HANDLE, LINKEDIN_URL = dark.EMAIL, dark.PHONE, dark.X_HANDLE, da
 
 # ---------------------------------------------------------------- Official Tawuniya geometry
 # Read verbatim from the Tawuniya brand file (Figma "System Assets").
-# Never redraw these or scale them non-uniformly.
-# Crop behaviour, vector 26:2520 — three lobes joined by sculpted bridges.
-CROP_W, CROP_H = 3160.48, 639.84
-CROP_PATH = ("M2840.56 0L2442.92 0C2281.96 0 2148.8 118.88 2126.36 273.6C2123.6 292.52 2107.56 306.6 2088.44 306.6"
-             "L2004.12 306.6C1985.04 306.6 1968.96 292.52 1966.2 273.6C1943.76 118.88 1810.6 0 1649.64 0L1448.68 0"
-             "C1288.2 0 1155.36 118.16 1132.32 272.2C1129.36 291.92 1112.68 306.6 1092.76 306.6L1041.76 306.6"
-             "C1021.84 306.6 1005.12 291.88 1002.2 272.2C979.16 118.16 846.32 0 685.84 0L319.92 0"
-             "C143.24 0 0 143.24 0 319.92C0 496.6 143.24 639.84 319.92 639.84L685.84 639.84"
-             "C846.32 639.84 979.16 521.68 1002.2 367.64C1005.16 347.92 1021.84 333.24 1041.76 333.24L1092.76 333.24"
-             "C1112.68 333.24 1129.4 347.96 1132.32 367.64C1155.36 521.68 1288.2 639.84 1448.68 639.84L1649.64 639.84"
-             "C1810.6 639.84 1943.76 520.96 1966.2 366.24C1968.96 347.32 1985 333.24 2004.12 333.24L2088.44 333.24"
-             "C2107.52 333.24 2123.6 347.32 2126.36 366.24C2148.8 521 2281.96 639.84 2442.92 639.84L2840.56 639.84"
-             "C3017.24 639.84 3160.48 496.6 3160.48 319.92C3160.48 143.24 3017.24 0 2840.56 0Z")
+# Never redraw it or scale it non-uniformly.
 # Detail behaviour, vector 26:2398 — two pills joined by the same bridge construction (4.16 % of height).
 DETAIL_W, DETAIL_H = 410.48, 78.8
 DETAIL_PATH = ("M99.8 78.8C119.64 78.8 136 64.16 138.8 45.12C139.12 42.8 141.12 41.04 143.48 41.04L156.6 41.04"
@@ -51,7 +39,7 @@ DETAIL_PATH = ("M99.8 78.8C119.64 78.8 136 64.16 138.8 45.12C139.12 42.8 141.12 
 UI = {
 "en": {
   "trust_h": "Regulatory standing",
-  "status_caption": "From medical authorization to transparent closure, every claim follows one connected journey.",
+  "hero_alt": "A healthcare professional in a white coat in conversation with a man across a desk",
   "pillars_h": "What we bring together",
   "pillars": [
     ("Advanced technology", "Intelligent digital solutions that simplify and streamline the medical claims lifecycle."),
@@ -102,7 +90,7 @@ UI = {
 },
 "ar": {
   "trust_h": "الوضع التنظيمي",
-  "status_caption": "من الموافقة الطبية حتى الإغلاق الشفاف، تتبع كل مطالبة رحلة واحدة مترابطة.",
+  "hero_alt": "أخصائية رعاية صحية بمعطف أبيض تتحدث مع رجل على مكتب",
   "pillars_h": "ما نجمع بينه",
   "pillars": [
     ("التقنيات المتقدمة", "حلول رقمية ذكية تبسّط دورة المطالبات الطبية وتديرها بكفاءة أعلى."),
@@ -247,52 +235,28 @@ def header(c):
   <a class="btn" href="#partner">{c["cta"]}{icon("arrow")}</a></div></header>'''
 
 
-def status_visual(c):
-    """Hero claim-status visual built on the official Crop connected shape (26:2520)."""
-    u = UI[c["lang"]]
-    picks = [0, 2, 4]  # authorization, settlement, closure — illustrative, labelled as such
-    tones = ["dark", "teal", "neon"]
-    lobes = ""
-    for n, (i, tone) in enumerate(zip(picks, tones)):
-        t, s = c["states"][i]
-        tick = icon("check", "ico status__tick") if i == 4 else ""
-        lobes += f'''<li class="status__lobe status__lobe--{n+1} status__lobe--{tone}" style="--i:{n}"><span class="status__n">0{i+1}</span><span class="status__t">{t}</span><span class="status__s">{s}</span>{tick}</li>'''
-    legend = "".join(f'<span><b>0{i+1}</b> {c["states"][i][0]}</span>' for i in picks)
-    split1, split2 = 1067.26, 2046.28  # mid-points of the two official bridges
-    svg = f'''<svg class="status__shape" viewBox="0 0 {CROP_W} {CROP_H}" aria-hidden="true" focusable="false">
-  <defs><clipPath id="crop-shape"><path d="{CROP_PATH}"/></clipPath></defs>
-  <g clip-path="url(#crop-shape)">
-    <rect class="f-dark" x="0" y="0" width="{split1}" height="{CROP_H}"/>
-    <rect class="f-teal" x="{split1}" y="0" width="{split2 - split1:.2f}" height="{CROP_H}"/>
-    <rect class="f-neon" x="{split2}" y="0" width="{CROP_W - split2:.2f}" height="{CROP_H}"/>
-  </g></svg>'''
-    return f'''<figure class="status fade-up" style="--d:4">
-  <div class="status__art">{svg}<ol class="status__lobes">{lobes}</ol></div>
-  <figcaption class="status__cap"><span class="status__legend" aria-hidden="true">{legend}</span>{u["status_caption"]}</figcaption>
-</figure>'''
-
-
 def hero(c):
     h, r, u = c["hero"], c["reg"], UI[c["lang"]]
     lines = "".join(f'<span class="line"><span style="--i:{i}">{t}</span></span>' for i, t in enumerate(h["lines"]))
     chips = [("shield", h["meta"][0]), ("link", h["meta"][1])]
     trust = "".join(f'<li class="trust__item">{icon(ic)}<span>{t}</span></li>' for ic, t in chips)
+    img = ('<picture><source type="image/webp" srcset="../assets/img/hero-640.webp 640w, ../assets/img/hero-960.webp 960w, ../assets/img/hero-1280.webp 1280w" sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw">'
+           '<img src="../assets/img/hero-960.jpg" srcset="../assets/img/hero-640.jpg 640w, ../assets/img/hero-960.jpg 960w, ../assets/img/hero-1280.jpg 1280w" '
+           f'sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw" width="1280" height="960" alt="{u["hero_alt"]}" fetchpriority="high" decoding="async"></picture>')
     return f'''<section class="hero" id="top" aria-labelledby="hero-h">
   <div class="wrap">
     <div class="hero__grid">
       <div class="hero__copy">
         <p class="eyebrow fade-up">{h["eyebrow"]}</p>
         <h1 class="h1" id="hero-h">{lines}</h1>
-      </div>
-      <div class="hero__side">
         <p class="lede fade-up" style="--d:2">{h["lede"]}</p>
         <div class="hero__actions fade-up" style="--d:3">
           <a class="btn" href="#partner">{h["primary"]}{icon("arrow")}</a>
           <a class="btn btn--ghost" href="#services">{h["secondary"]}</a>
         </div>
       </div>
+      <figure class="hero__media fade-up" style="--d:4">{img}</figure>
     </div>
-    {status_visual(c)}
     <div class="trust fade-up" style="--d:5">
       <h2 class="sr-only">{u["trust_h"]}</h2>
       <div class="trust__stat"><span class="stat"><span class="stat__n" data-count="{r["count"]}">{r["count"]:,}</span><span class="stat__u">+</span></span><span class="stat__l">{r["count_label"]}</span></div>
