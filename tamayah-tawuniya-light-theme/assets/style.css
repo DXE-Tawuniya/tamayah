@@ -356,9 +356,12 @@ html.no-js .burger{display:none}
   .val,.val:nth-child(n+4){grid-column:auto}
 }
 @media (max-width:719.98px){
-  .jx__t{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-  .jx__tab{padding-block-end:0}
-  .jx__track{inset-inline:calc(10% - 4px)}
+  /* Stacked, readable stage list instead of shrinking labels under dots */
+  .jx__tabs{grid-template-columns:minmax(0,1fr);gap:4px}
+  .jx__tab{display:flex;align-items:center;justify-items:start;gap:14px;min-height:52px;padding:4px 0;text-align:start}
+  .jx__track{inset-inline:auto;inset-inline-start:21px;inset-block:26px;width:2px;height:auto}
+  .jx__fill{transform:scaleY(var(--p,0));transform-origin:top}
+  [dir=rtl] .jx__fill{transform-origin:top}
   .pillars{grid-template-columns:minmax(0,1fr)}
   .vision{grid-template-columns:minmax(0,1fr)}
   .form__grid{grid-template-columns:minmax(0,1fr)}

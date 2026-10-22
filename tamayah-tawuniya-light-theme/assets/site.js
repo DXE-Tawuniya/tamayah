@@ -148,6 +148,11 @@
       select(n);
       return true;
     };
+    if (box.classList.contains('jx')) {  // stage list is vertical on small screens
+      const mqv = matchMedia('(max-width:719.98px)');
+      const orient = () => list.setAttribute('aria-orientation', mqv.matches ? 'vertical' : 'horizontal');
+      orient(); mqv.addEventListener('change', orient);
+    }
     if (!fromHash()) select(0);
     tabsets.push(fromHash);
   });
