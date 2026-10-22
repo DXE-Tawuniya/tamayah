@@ -247,7 +247,7 @@ def hero(c):
     trust = "".join(f'<li class="trust__item">{icon(ic)}<span>{t}</span></li>' for ic, t in chips)
     img = ('<picture><source type="image/webp" srcset="../assets/img/hero-640.webp 640w, ../assets/img/hero-960.webp 960w, ../assets/img/hero-1280.webp 1280w" sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw">'
            '<img src="../assets/img/hero-960.jpg" srcset="../assets/img/hero-640.jpg 640w, ../assets/img/hero-960.jpg 960w, ../assets/img/hero-1280.jpg 1280w" '
-           f'sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw" width="1280" height="960" alt="{u["hero_alt"]}" fetchpriority="high" decoding="async"></picture>')
+           f'sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw" width="1280" height="960" alt="{u["hero_alt"]}" decoding="async"></picture>')
     return f'''<section class="hero" id="top" aria-labelledby="hero-h">
   <div class="wrap">
     <div class="hero__grid">
@@ -483,7 +483,7 @@ def footer(c):
     return f'''<footer class="footer"><div class="wrap footer__in">
   <a class="brand footer__logo" href="#top">{logo("brand__logo").replace("{alt}", c["name"])}</a>
   <p class="footer__reg">{f["reg"]}</p>
-  <ul class="legal" aria-label="{u["legal_h"]}">{legal}</ul>
+  <h2 class="sr-only">{u["legal_h"]}</h2><ul class="legal">{legal}</ul>
   <p class="footer__copy">{f["rights"]}</p>
 </div></footer>'''
 
