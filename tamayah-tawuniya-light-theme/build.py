@@ -502,7 +502,17 @@ def render(lang):
 <link rel="canonical" href="{SITE_URL}{lang}/index.html">
 <link rel="alternate" hreflang="en" href="{SITE_URL}en/index.html">
 <link rel="alternate" hreflang="ar" href="{SITE_URL}ar/index.html">
-<link rel="alternate" hreflang="x-default" href="{SITE_URL}">
+<link rel="alternate" hreflang="x-default" href="{SITE_URL}en/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{c["name"]}">
+<meta property="og:title" content="{html.escape(c["titles"]["index"])}">
+<meta property="og:description" content="{html.escape(c["desc"])}">
+<meta property="og:url" content="{SITE_URL}{lang}/index.html">
+<meta property="og:locale" content="{"ar_SA" if lang == "ar" else "en_US"}">
+<meta property="og:locale:alternate" content="{"en_US" if lang == "ar" else "ar_SA"}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{html.escape(c["titles"]["index"])}">
+<meta name="twitter:description" content="{html.escape(c["desc"])}">
 <link rel="icon" type="image/png" href="../assets/mark.png">
 <link rel="preload" href="../assets/fonts/tawuniya-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/style.css">
