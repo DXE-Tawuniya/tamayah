@@ -204,13 +204,14 @@ def logo(cls, eager=False):
 
 
 def photo(name, w, h, alt, sizes, eager):
-    """<picture> with WebP + JPEG fallback from assets/img/{name}-{640,960,1280}; explicit size."""
-    ws = (640, 960, 1280)
-    webp = ", ".join(f"../assets/img/{name}-{x}.webp {x}w" for x in ws)
-    jpg = ", ".join(f"../assets/img/{name}-{x}.jpg {x}w" for x in ws)
-    load = 'decoding="async"' if eager else 'loading="lazy" decoding="async"'
-    return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
-            f'<img src="../assets/img/{name}-960.jpg" srcset="{jpg}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}" {load}></picture>')
+    """<picture>: AVIF, then WebP, then JPEG fallback from assets/img/{name}-{480,640,960,1280}; explicit size."""
+    ws = (480, 640, 960, 1280)
+    src = lambda ext: ", ".join(f"../assets/img/{name}-{x}.{ext} {x}w" for x in ws)
+    # eager = no loading attribute; low fetch priority so CSS + font for the LCP text (the lede) go first
+    load = 'fetchpriority="low" decoding="async"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<picture><source type="image/avif" srcset="{src("avif")}" sizes="{sizes}">'
+            f'<source type="image/webp" srcset="{src("webp")}" sizes="{sizes}">'
+            f'<img src="../assets/img/{name}-960.jpg" srcset="{src("jpg")}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}" {load}></picture>')
 
 
 def services(c):
@@ -257,9 +258,7 @@ def hero(c):
     lines = "".join(f'<span class="line"><span style="--i:{i}">{t}</span></span>' for i, t in enumerate(h["lines"]))
     chips = [("shield", h["meta"][0]), ("link", h["meta"][1])]
     trust = "".join(f'<li class="trust__item">{icon(ic)}<span>{t}</span></li>' for ic, t in chips)
-    img = ('<picture><source type="image/webp" srcset="../assets/img/hero-640.webp 640w, ../assets/img/hero-960.webp 960w, ../assets/img/hero-1280.webp 1280w" sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw">'
-           '<img src="../assets/img/hero-960.jpg" srcset="../assets/img/hero-640.jpg 640w, ../assets/img/hero-960.jpg 960w, ../assets/img/hero-1280.jpg 1280w" '
-           f'sizes="(min-width:1024px) 40vw, (min-width:720px) 88vw, 100vw" width="1280" height="960" alt="{u["hero_alt"]}" decoding="async"></picture>')
+    img = photo("hero", 1280, 960, u["hero_alt"], "(min-width:1024px) 36vw, calc(100vw - 40px)", eager=True)
     return f'''<section class="hero" id="top" aria-labelledby="hero-h">
   <div class="wrap">
     <div class="hero__grid">
@@ -397,7 +396,7 @@ def suite(c):
     return f'''<section class="section section--tint suite" id="suite" aria-labelledby="suite-h"><div class="wrap">
   {shead(s["eyebrow"], s["h2"], s["lede"], "suite-h")}
   <div class="care-layout">
-  <figure class="care__media rv">{photo("care", 1280, 853, u["care_alt"], "(min-width:1180px) 36vw, 92vw", eager=False)}</figure>
+  <figure class="care__media rv">{photo("care", 1280, 853, u["care_alt"], "(min-width:1180px) 36vw, calc(100vw - 40px)", eager=False)}</figure>
   <div class="care rv" data-tabs data-mobile-only>
     <div class="seg care__seg" role="tablist" aria-label="{u["care_plans"]}">{tabs}</div>
     <div class="care__plans">{plans}</div>
@@ -537,7 +536,7 @@ def render(lang):
 <meta name="twitter:title" content="{html.escape(c["titles"]["index"])}">
 <meta name="twitter:description" content="{html.escape(c["desc"])}">
 <link rel="icon" type="image/png" href="../assets/mark.png">
-<link rel="preload" href="../assets/fonts/tawuniya-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/tawuniya-400-{"arabic" if lang == "ar" else "latin"}.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/style.css">
 <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
