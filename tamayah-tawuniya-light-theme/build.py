@@ -266,15 +266,15 @@ def hero(c):
       <div class="hero__copy">
         <p class="eyebrow fade-up">{h["eyebrow"]}</p>
         <h1 class="h1" id="hero-h">{lines}</h1>
-        <p class="lede fade-up" style="--d:2">{h["lede"]}</p>
-        <div class="hero__actions fade-up" style="--d:3">
+        <p class="lede fade-up" style="--d:3">{h["lede"]}</p>
+        <div class="hero__actions fade-up" style="--d:4">
           <a class="btn" href="#partner">{h["primary"]}{icon("arrow")}</a>
           <a class="btn btn--ghost" href="#services">{h["secondary"]}</a>
         </div>
       </div>
-      <figure class="hero__media fade-up" style="--d:4">{img}</figure>
+      <figure class="hero__media fade-up" style="--d:5">{img}</figure>
     </div>
-    <div class="trust fade-up" style="--d:5">
+    <div class="trust fade-up" style="--d:6">
       <h2 class="sr-only">{u["trust_h"]}</h2>
       <ul class="trust__list">{trust}</ul>
       <p class="trust__reg">{r["text"]}</p>

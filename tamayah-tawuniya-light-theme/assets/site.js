@@ -33,7 +33,11 @@
   }));
 
   /* ---------- Header: divider on scroll, desktop CTA after the hero ---------- */
-  const onScroll = () => header.classList.toggle('is-solid', scrollY > 8);
+  let menuOpen = false;
+  const onScroll = () => {
+    header.classList.toggle('is-solid', scrollY > 8);
+    header.classList.toggle('is-condensed', !menuOpen && scrollY > 120);  // never while the menu is open
+  };
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
   const hero = $('.hero');
@@ -47,11 +51,14 @@
     const outside = [$('main'), $('footer'), $('.brand'), $('.lang')].filter(Boolean);
     const focusables = () => [burger, ...$$('a, button', drawer)];
     const set = (open, restore) => {
+      menuOpen = open;
+      header.classList.remove('is-condensed');
       burger.setAttribute('aria-expanded', open);
       drawer.classList.toggle('is-open', open);
       drawer.toggleAttribute('inert', !open);
       outside.forEach(el => el.toggleAttribute('inert', open));
       d.body.style.overflow = open ? 'hidden' : '';
+      if (!open) onScroll();
       if (open) $('a', drawer).focus();
       else if (restore) burger.focus();
     };
