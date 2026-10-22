@@ -68,7 +68,7 @@ UI = {
   "care_shared": "Included in both services",
   "care_plans": "Compare services",
   "care_distinct": "Distinctive to this service",
-  "lead_role_sr": "Role", "board_member": "Board Member",
+  "board_member": "Board Member",
   "form_h": "Send an enquiry",
   "form_intro": "Tell us about your organization and we will prepare an email to our team.",
   "f_name": "Full name", "f_org": "Organization", "f_role": "I am a…", "f_role_ph": "Select one",
@@ -120,7 +120,7 @@ UI = {
   "care_shared": "مشمولة في الخدمتين",
   "care_plans": "قارن بين الخدمتين",
   "care_distinct": "ما يميز هذه الخدمة",
-  "lead_role_sr": "المنصب", "board_member": "عضو مجلس المديرين",
+  "board_member": "عضو مجلس المديرين",
   "form_h": "أرسل استفسارك",
   "form_intro": "أخبرنا عن جهتك وسنجهّز رسالة بريد إلكتروني إلى فريقنا.",
   "f_name": "الاسم الكامل", "f_org": "الجهة", "f_role": "أنا…", "f_role_ph": "اختر",
@@ -403,7 +403,7 @@ def leadership(c):
             role = u["board_member"]
         for n in names:
             cards += f'''<li class="person rv" style="--d:{i}"><span class="person__mono" aria-hidden="true">{monogram(n, c["lang"])}</span>
-  <h3 class="person__name">{n}</h3><p class="person__role"><span class="sr-only">{u["lead_role_sr"]}: </span>{role}</p></li>'''
+  <h3 class="person__name">{n}</h3><p class="person__role">{role}</p></li>'''
             i += 1
     return f'''<section class="section lead" id="leadership" aria-labelledby="lead-h"><div class="wrap">
   {shead(l["eyebrow"], l["h2"], "", "lead-h")}
